@@ -1,0 +1,162 @@
+{% extends 'base.html' %} {% block title %}Add User | Admin{% endblock %} {%
+block head_extras %}
+<style>
+  .create-user-shell {
+    max-width: 760px;
+    margin: 0 auto;
+    padding-top: 12px;
+  }
+
+  .create-user-card {
+    padding: 28px;
+    border-radius: 28px;
+    background: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+  }
+
+  .form-heading {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .form-heading h1 {
+    margin: 0;
+    font-size: clamp(2rem, 2.4vw, 2.6rem);
+    color: #eef2ff;
+  }
+
+  .form-heading p {
+    margin: 0;
+    color: #cbd5e1;
+    max-width: 560px;
+    line-height: 1.75;
+  }
+
+  .form-grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  .form-grid label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #9ca3af;
+  }
+
+  .form-grid input,
+  .form-grid select {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid #374151;
+    background: #111827;
+    color: #f8fafc;
+    font-size: 1rem;
+    transition:
+      border-color 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+
+  .form-grid input:focus,
+  .form-grid select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+  }
+
+  .form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.95rem 1.5rem;
+    background: rgba(15, 23, 42, 0.08);
+    color: #0f172a;
+    border-radius: 14px;
+    text-decoration: none;
+    border: none;
+    transition: background 0.18s ease;
+  }
+
+  .secondary-btn:hover {
+    background: rgba(15, 23, 42, 0.14);
+  }
+
+  .form-note {
+    color: #475569;
+  }
+
+  @media (max-width: 720px) {
+    .form-heading {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container create-user-shell">
+  <section class="create-user-card card">
+    <div class="form-heading">
+      <div>
+        <span class="hero-chip">Add User</span>
+        <h1>Create a New Account</h1>
+        <p>
+          Add a new student, organizer, or admin account directly from the admin
+          page.
+        </p>
+      </div>
+      <a class="secondary-btn" href="{{ url_for('admin.manage_users') }}"
+        >Back to users</a
+      >
+    </div>
+
+    <form method="post" action="{{ form_action }}">
+      <div class="form-grid">
+        <label for="name">Full Name</label>
+        <input id="name" name="name" type="text" required value="{{ target_user.name if target_user else '' }}" />
+      </div>
+      <div class="form-grid">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required value="{{ target_user.email if target_user else '' }}" />
+      </div>
+      <div class="form-grid">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" {% if target_user is none %}required{% endif %} placeholder="{{ 'Create a password for this user' if target_user is none else 'Leave blank to keep current password' }}" />
+      </div>
+      <div class="form-grid">
+        <label for="role">Role</label>
+        <select id="role" name="role">
+          <option value="student" {% if target_user and target_user.role == 'student' %}selected{% endif %}>Voter</option>
+          <option value="organizer" {% if target_user and target_user.role == 'organizer' %}selected{% endif %}>Organizer</option>
+          <option value="admin" {% if target_user and target_user.role == 'admin' %}selected{% endif %}>Admin</option>
+        </select>
+      </div>
+      {% if target_user %}
+      <div class="form-grid">
+        <label for="active">Activate Account</label>
+        <input id="active" name="active" type="checkbox" {% if target_user.active %}checked{% endif %} />
+      </div>
+      {% endif %}
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+        <span class="form-note">Password is required for new users and optional when editing.</span>
+        {% if target_user %}
+        <a class="secondary-btn" href="{{ url_for('admin.reset_user_password', user_id=target_user.id) }}">Reset Password</a>
+        {% endif %}
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,419 @@
+{% extends 'base.html' %} {% block title %}All Elections | Integrated Portal{%
+endblock %} {% block head_extras %}
+<style>
+  .all-elections-page {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  /* SIDEBAR */
+  .elections-sidebar {
+    position: sticky;
+    top: 24px;
+    height: fit-content;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.96),
+      rgba(31, 41, 55, 0.98)
+    );
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  }
+
+  .sidebar-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sidebar-nav a {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #cbd5e1;
+    text-decoration: none;
+    background: rgba(17, 24, 39, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.08);
+    transition: all 0.25s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .sidebar-nav a:hover {
+    background: rgba(37, 99, 235, 0.12);
+    color: #f8fafc;
+    border-color: rgba(37, 99, 235, 0.24);
+    transform: translateX(4px);
+  }
+
+  .sidebar-nav a.active {
+    background: linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.2),
+      rgba(59, 130, 246, 0.12)
+    );
+    color: #bfdbfe;
+    border-color: rgba(37, 99, 235, 0.4);
+  }
+
+  /* MAIN CONTENT */
+  .elections-main {
+    display: grid;
+    gap: 24px;
+  }
+
+  /* HEADER */
+  .elections-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .header-info h1 {
+    font-size: 2.2rem;
+    margin: 0 0 8px 0;
+    color: #f8fafc;
+  }
+
+  .header-info p {
+    color: #94a3b8;
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  /* ELECTIONS GRID */
+  .elections-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+
+  /* ELECTION CARD */
+  .election-card {
+    background: #111827;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+    display: grid;
+    gap: 14px;
+  }
+
+  .election-card:hover {
+    border-color: rgba(37, 99, 235, 0.24);
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .badge-active {
+    background: rgba(34, 197, 94, 0.15);
+    color: #86efac;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+
+  .badge-closed {
+    background: rgba(148, 163, 184, 0.15);
+    color: #cbd5e1;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+  }
+
+  .badge-open {
+    background: rgba(59, 130, 246, 0.15);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .card-date {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .election-card h3 {
+    font-size: 1.3rem;
+    color: #f8fafc;
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .election-description {
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .election-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #94a3b8;
+    font-size: 0.9rem;
+  }
+
+  .election-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .election-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .election-btn.primary {
+    background: #2563eb;
+    color: white;
+  }
+
+  .election-btn.primary:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+  }
+
+  .election-btn.secondary {
+    background: rgba(37, 99, 235, 0.15);
+    color: #bfdbfe;
+    border: 1px solid rgba(37, 99, 235, 0.24);
+  }
+
+  .election-btn.secondary:hover {
+    background: rgba(37, 99, 235, 0.25);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #94a3b8;
+    background: rgba(17, 24, 39, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 20px;
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  .empty-state h3 {
+    color: #f8fafc;
+    margin: 0 0 8px 0;
+    font-size: 1.3rem;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .all-elections-page {
+      grid-template-columns: 1fr;
+    }
+
+    .elections-sidebar {
+      position: static;
+    }
+
+    .sidebar-nav {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .sidebar-nav a {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .all-elections-page {
+      margin: 16px auto;
+      gap: 16px;
+    }
+
+    .header-info h1 {
+      font-size: 1.8rem;
+    }
+
+    .elections-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .election-btn {
+      font-size: 0.85rem;
+      padding: 10px 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .elections-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .election-actions {
+      flex-direction: column;
+    }
+
+    .election-btn {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="all-elections-page">
+  <!-- SIDEBAR -->
+  <aside class="elections-sidebar">
+    <div class="sidebar-title">📁 Navigation</div>
+    <nav class="sidebar-nav">
+      <a
+        class="{% if request.path == url_for('voting.index') %}active{% endif %}"
+        href="{{ url_for('voting.index') }}"
+        >Elections</a
+      >
+      <a
+        class="{% if request.path == url_for('voting.history') %}active{% endif %}"
+        href="{{ url_for('voting.history') }}"
+        >My Votes</a
+      >
+      <a
+        class="{% if request.path == url_for('voting.results') %}active{% endif %}"
+        href="{{ url_for('voting.results') }}"
+        >Results</a
+      >
+      <a
+        class="{% if request.path == url_for('voting.elections') %}active{% endif %}"
+        href="{{ url_for('voting.elections') }}"
+        >All Elections</a
+      >
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="elections-main">
+    <!-- HEADER -->
+    <div class="elections-header">
+      <div class="header-info">
+        <h1>All Elections</h1>
+        <p>
+          Browse every election in the system and choose the one you want to
+          engage with
+        </p>
+      </div>
+    </div>
+
+    <!-- ELECTIONS GRID -->
+    {% if elections %}
+    <div class="elections-grid">
+      {% for election in elections %}
+      <article class="election-card">
+        <!-- Card Header -->
+        <div class="card-header">
+          <span
+            class="card-badge {% if election.status|lower == 'active' %}badge-active{% elif election.status|lower == 'closed' %}badge-closed{% else %}badge-open{% endif %}"
+          >
+            {{ election.status|capitalize }}
+          </span>
+          <span class="card-date"
+            >{{ election.created_at.strftime('%b %d, %Y') }}</span
+          >
+        </div>
+
+        <!-- Title -->
+        <h3>{{ election.title }}</h3>
+
+        <!-- Description -->
+        <p class="election-description">
+          {{ election.description or 'Election details are managed by your event
+          organizers.' }}
+        </p>
+
+        <!-- Meta Information -->
+        <div class="election-meta">
+          <span class="meta-item">
+            📋 {{ election.event_id and ('Event #' ~ election.event_id) or '🗳️
+            General Election' }}
+          </span>
+        </div>
+
+        <!-- Actions -->
+        <div class="election-actions">
+          <a
+            class="election-btn primary"
+            href="{{ url_for('voting.ballot', election_id=election.id) }}"
+            >View Ballot</a
+          >
+          <a
+            class="election-btn secondary"
+            href="{{ url_for('voting.results') }}"
+            >Results</a
+          >
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">📁</div>
+      <h3>No Elections Found</h3>
+      <p>
+        There are currently no elections available. Check back soon for upcoming
+        elections.
+      </p>
+    </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

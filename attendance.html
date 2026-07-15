@@ -1,0 +1,559 @@
+{% extends 'base.html' %} {% block title %}Attendance | Integrated Portal{%
+endblock %} {% block head_extras %}
+<style>
+  .attendance-page {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  /* SIDEBAR */
+  .attendance-sidebar {
+    position: sticky;
+    top: 24px;
+    height: fit-content;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.96),
+      rgba(31, 41, 55, 0.98)
+    );
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  }
+
+  .sidebar-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sidebar-nav a {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #cbd5e1;
+    text-decoration: none;
+    background: rgba(17, 24, 39, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.08);
+    transition: all 0.25s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .sidebar-nav a:hover {
+    background: rgba(37, 99, 235, 0.12);
+    color: #f8fafc;
+    border-color: rgba(37, 99, 235, 0.24);
+    transform: translateX(4px);
+  }
+
+  .sidebar-nav a.active {
+    background: linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.2),
+      rgba(59, 130, 246, 0.12)
+    );
+    color: #bfdbfe;
+    border-color: rgba(37, 99, 235, 0.4);
+  }
+
+  /* MAIN CONTENT */
+  .attendance-main {
+    display: grid;
+    gap: 24px;
+  }
+
+  /* HEADER */
+  .attendance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .header-info h1 {
+    font-size: 2.2rem;
+    margin: 0 0 8px 0;
+    color: #f8fafc;
+  }
+
+  .header-info p {
+    color: #94a3b8;
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    padding: 11px 22px;
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+    text-align: center;
+  }
+
+  .action-btn.primary {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+  }
+
+  .action-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.35);
+  }
+
+  .action-btn.secondary {
+    background: rgba(37, 99, 235, 0.12);
+    color: #bfdbfe;
+    border: 1px solid rgba(37, 99, 235, 0.24);
+  }
+
+  .action-btn.secondary:hover {
+    background: rgba(37, 99, 235, 0.18);
+  }
+
+  /* CAPABILITIES */
+  .capabilities-section {
+    background: linear-gradient(
+      135deg,
+      rgba(30, 58, 138, 0.1),
+      rgba(37, 99, 235, 0.06)
+    );
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 20px;
+    padding: 24px;
+  }
+
+  .capabilities-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin: 0 0 16px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .capabilities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .capability-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(17, 24, 39, 0.5);
+    border-radius: 12px;
+    border: 1px solid rgba(37, 99, 235, 0.16);
+  }
+
+  .capability-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .capability-text {
+    color: #bfdbfe;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  /* SEARCH SECTION */
+  .search-section {
+    background: rgba(17, 24, 39, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 20px;
+    padding: 24px;
+  }
+
+  .search-form {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 11px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    background: rgba(17, 24, 39, 0.8);
+    color: #f8fafc;
+    font-size: 0.95rem;
+  }
+
+  .search-input::placeholder {
+    color: #64748b;
+  }
+
+  .search-btn {
+    padding: 11px 22px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+  }
+
+  /* ATTENDANCE TABLE */
+  .attendance-section {
+    background: rgba(17, 24, 39, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 20px;
+    padding: 24px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0;
+  }
+
+  .section-count {
+    background: rgba(37, 99, 235, 0.15);
+    color: #bfdbfe;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  /* TABLE */
+  .attendance-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .attendance-table thead {
+    background: rgba(37, 99, 235, 0.08);
+    border-bottom: 2px solid rgba(37, 99, 235, 0.16);
+  }
+
+  .attendance-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #bfdbfe;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .attendance-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+    font-size: 0.95rem;
+  }
+
+  .attendance-table tbody tr:hover {
+    background: rgba(37, 99, 235, 0.06);
+  }
+
+  .participant-name {
+    font-weight: 600;
+    color: #f8fafc;
+  }
+
+  .event-name {
+    color: #bfdbfe;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .status-present {
+    background: rgba(34, 197, 94, 0.15);
+    color: #86efac;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+
+  .status-absent {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .status-late {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fcd34d;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .row-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .row-action-btn {
+    padding: 6px 12px;
+    background: rgba(37, 99, 235, 0.15);
+    color: #bfdbfe;
+    border: 1px solid rgba(37, 99, 235, 0.24);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .row-action-btn:hover {
+    background: rgba(37, 99, 235, 0.25);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .attendance-page {
+      grid-template-columns: 1fr;
+    }
+
+    .attendance-sidebar {
+      position: static;
+    }
+
+    .sidebar-nav {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .sidebar-nav a {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .header-actions {
+      width: 100%;
+    }
+
+    .attendance-table {
+      font-size: 0.9rem;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+      padding: 10px 12px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .attendance-page {
+      margin: 16px auto;
+      gap: 16px;
+    }
+
+    .header-info h1 {
+      font-size: 1.8rem;
+    }
+
+    .attendance-table {
+      font-size: 0.85rem;
+    }
+
+    .search-form {
+      flex-direction: column;
+    }
+
+    .search-input {
+      min-width: 100%;
+    }
+
+    .search-btn {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="attendance-page">
+  <!-- SIDEBAR -->
+  <aside class="attendance-sidebar">
+    <div class="sidebar-title">✅ Navigation</div>
+    <nav class="sidebar-nav">
+      <a class="active" href="{{ url_for('events.attendance') }}">Attendance</a>
+      <a href="{{ url_for('events.my_events') }}">My Events</a>
+      <a href="{{ url_for('events.certificates') }}">Certificates</a>
+      <a href="{{ url_for('events.notifications') }}">Notifications</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="attendance-main">
+    <!-- HEADER -->
+    <div class="attendance-header">
+      <div class="header-info">
+        <h1>Attendance</h1>
+        <p>Manage event attendance records and participant tracking</p>
+      </div>
+      <div class="header-actions">
+        <button class="action-btn primary">+ Record Attendance</button>
+        <button class="action-btn secondary">📥 Export Report</button>
+      </div>
+    </div>
+
+    <!-- CAPABILITIES -->
+    <section class="capabilities-section">
+      <h3 class="capabilities-title">Available Features</h3>
+      <div class="capabilities-grid">
+        <div class="capability-item">
+          <span class="capability-icon">📝</span>
+          <span class="capability-text">Record Attendance</span>
+        </div>
+        <div class="capability-item">
+          <span class="capability-icon">📋</span>
+          <span class="capability-text">View Attendance List</span>
+        </div>
+        <div class="capability-item">
+          <span class="capability-icon">🔍</span>
+          <span class="capability-text">Search Participants</span>
+        </div>
+        <div class="capability-item">
+          <span class="capability-icon">✏️</span>
+          <span class="capability-text">Update Status</span>
+        </div>
+        <div class="capability-item">
+          <span class="capability-icon">📊</span>
+          <span class="capability-text">View Statistics</span>
+        </div>
+        <div class="capability-item">
+          <span class="capability-icon">📥</span>
+          <span class="capability-text">Export Reports</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section class="search-section">
+      <form class="search-form">
+        <input
+          class="search-input"
+          type="search"
+          name="q"
+          placeholder="Search by event name, participant name..."
+          value="{{ q or '' }}"
+        />
+        <button class="search-btn" type="submit">Search</button>
+      </form>
+    </section>
+
+    <!-- ATTENDANCE LIST -->
+    <section class="attendance-section">
+      <div class="section-header">
+        <h2 class="section-title">📋 Attendance Records</h2>
+        <span class="section-count">{{ records|length }} records</span>
+      </div>
+
+      {% if records %}
+      <div style="overflow-x: auto">
+        <table class="attendance-table">
+          <thead>
+            <tr>
+              <th>Participant</th>
+              <th>Event</th>
+              <th>Check-in Time</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in records %}
+            <tr>
+              <td class="participant-name">
+                {{ r.user.name if r.user else 'Unknown' }}
+              </td>
+              <td class="event-name">
+                {{ r.event.title if r.event else 'Event #' ~ r.event_id }}
+              </td>
+              <td>
+                {{ r.time_in.strftime('%b %d, %H:%M') if r.time_in else 'Not
+                checked in' }}
+              </td>
+              <td>
+                <span
+                  class="status-badge {% if r.status|lower == 'present' %}status-present{% elif r.status|lower == 'absent' %}status-absent{% elif r.status|lower == 'late' %}status-late{% endif %}"
+                >
+                  {{ r.status|capitalize }}
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="row-action-btn" type="button">Edit</button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <h3 style="color: #f8fafc; margin: 0 0 8px 0">No Attendance Records</h3>
+        <p>
+          No attendance records found. Start recording attendance to see data
+          here.
+        </p>
+      </div>
+      {% endif %}
+    </section>
+  </main>
+</div>
+{% endblock %}

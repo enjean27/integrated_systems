@@ -1,0 +1,485 @@
+{% extends 'base.html' %} {% block title %}Events | Integrated Portal{% endblock
+%} {% block head_extras %}
+<style>
+  .events-page {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  /* SIDEBAR */
+  .events-sidebar {
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.96),
+      rgba(31, 41, 55, 0.98)
+    );
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  }
+
+  .sidebar-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #cbd5e1;
+    text-decoration: none;
+    background: rgba(17, 24, 39, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.08);
+    transition: all 0.25s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .sidebar-nav a:hover {
+    background: rgba(37, 99, 235, 0.12);
+    color: #f8fafc;
+    border-color: rgba(37, 99, 235, 0.24);
+    transform: translateX(4px);
+  }
+
+  .sidebar-nav a.active {
+    background: linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.2),
+      rgba(59, 130, 246, 0.12)
+    );
+    color: #bfdbfe;
+    border-color: rgba(37, 99, 235, 0.4);
+  }
+
+  /* MAIN CONTENT */
+  .events-main {
+    display: grid;
+    gap: 24px;
+  }
+
+  /* SECTION */
+  .events-section {
+    background: rgba(17, 24, 39, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 20px;
+    padding: 24px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0;
+  }
+
+  /* EVENT GRID */
+  .events-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  /* EVENT CARD */
+  .event-card {
+    background: #111827;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    display: grid;
+    gap: 12px;
+  }
+
+  .event-card:hover {
+    border-color: rgba(37, 99, 235, 0.24);
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .event-card h3 {
+    font-size: 1.15rem;
+    color: #f8fafc;
+    margin: 0;
+  }
+
+  .event-card p {
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .event-meta {
+    display: grid;
+    gap: 6px;
+    color: #94a3b8;
+    font-size: 0.9rem;
+  }
+
+  .event-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .event-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .event-btn.primary {
+    background: #2563eb;
+    color: white;
+  }
+
+  .event-btn.primary:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+  }
+
+  .event-btn.secondary {
+    background: rgba(37, 99, 235, 0.15);
+    color: #bfdbfe;
+    border: 1px solid rgba(37, 99, 235, 0.24);
+  }
+
+  .event-btn.secondary:hover {
+    background: rgba(37, 99, 235, 0.25);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .events-page {
+      grid-template-columns: 1fr;
+    }
+
+    .events-sidebar {
+      position: static;
+    }
+
+    .sidebar-nav {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .sidebar-nav a {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .events-page {
+      margin: 16px auto;
+      gap: 16px;
+    }
+
+    .events-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .events-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .event-actions {
+      flex-direction: column;
+    }
+
+    .event-btn {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="events-page">
+  <!-- SIDEBAR -->
+  <aside class="events-sidebar">
+    <div class="sidebar-title">📅 Events Menu</div>
+    <nav class="sidebar-nav">
+      <a
+        class="{% if request.path == url_for('events.index') %}active{% endif %}"
+        href="{{ url_for('events.index') }}"
+        >🏠 Dashboard</a
+      >
+      <a
+        class="{% if request.path == url_for('voting.voter_dashboard') %}active{% endif %}"
+        href="{{ url_for('voting.voter_dashboard') }}"
+        >🗳️ Vote Now</a
+      >
+      <a
+        class="{% if request.path == url_for('voting.history') %}active{% endif %}"
+        href="{{ url_for('voting.history') }}"
+        >📜 My Voting History</a
+      >
+      <a
+        class="{% if request.path == url_for('results.elections_results') %}active{% endif %}"
+        href="{{ url_for('results.elections_results') }}"
+        >🏆 Results</a
+      >
+      <a
+        class="{% if request.path == url_for('auth.profile') %}active{% endif %}"
+        href="{{ url_for('auth.profile') }}"
+        >👤 Profile</a
+      >
+      <a
+        class="{% if request.path == url_for('auth.logout') %}active{% endif %}"
+        href="{{ url_for('auth.logout') }}"
+        >🚪 Logout</a
+      >
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="events-main">
+    <!-- VIEW EVENT LIST -->
+    <section class="events-section">
+      <div class="section-header">
+        <h2 class="section-title">📋 View Event List</h2>
+      </div>
+      {% if upcoming_events or ongoing_events or finished_events %}
+      <div class="events-grid">
+        {% for event in upcoming_events %}
+        <article class="event-card">
+          <h3>{{ event.title }}</h3>
+          <p>{{ event.description[:100] }}{% if event.description and event.description|length > 100 %}...{% endif %}</p>
+          <div class="event-meta">
+            <span>📅 {{ event.event_date.strftime('%b %d, %Y') if event.event_date else 'TBA' }}</span>
+            <span>📍 {{ event.location or 'Location TBA' }}</span>
+          </div>
+        </article>
+        {% endfor %}
+        {% for event in ongoing_events %}
+        <article class="event-card">
+          <h3>{{ event.title }}</h3>
+          <p>{{ event.description[:100] }}{% if event.description and event.description|length > 100 %}...{% endif %}</p>
+          <div class="event-meta">
+            <span>📅 {{ event.event_date.strftime('%b %d, %Y') if event.event_date else 'TBA' }}</span>
+            <span>📍 {{ event.location or 'Location TBA' }}</span>
+          </div>
+        </article>
+        {% endfor %}
+        {% for event in finished_events %}
+        <article class="event-card">
+          <h3>{{ event.title }}</h3>
+          <p>{{ event.description[:100] }}{% if event.description and event.description|length > 100 %}...{% endif %}</p>
+          <div class="event-meta">
+            <span>📅 {{ event.event_date.strftime('%b %d, %Y') if event.event_date else 'TBA' }}</span>
+            <span>📍 {{ event.location or 'Location TBA' }}</span>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">No events available</div>
+      {% endif %}
+    </section>
+
+    <!-- VIEW EVENT DETAILS -->
+    <section class="events-section">
+      <div class="section-header">
+        <h2 class="section-title">📝 View Event Details</h2>
+      </div>
+      {% if upcoming_events or ongoing_events or finished_events %}
+      <div class="events-grid">
+        {% for event in upcoming_events[:1] %}
+        <article class="event-card">
+          <h3>{{ event.title }}</h3>
+          <p>{{ event.description }}</p>
+          <div class="event-meta">
+            <span>👤 Organized by {{ event.organizer.name if event.organizer else 'Campus Team' }}</span>
+          </div>
+          <div class="event-actions">
+            <a class="event-btn primary" href="{{ url_for('events.event_detail', event_id=event.id) }}">View Details</a>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">No event details available</div>
+      {% endif %}
+    </section>
+
+    <!-- VIEW EVENT SCHEDULE -->
+    <section class="events-section">
+      <div class="section-header">
+        <h2 class="section-title">📅 View Event Schedule</h2>
+      </div>
+      {% if upcoming_events or ongoing_events %}
+      <div class="events-grid">
+        {% for event in upcoming_events %}
+        <article class="event-card">
+          <h3>{{ event.title }}</h3>
+          <div class="event-meta">
+            <span>📅 Date: {{ event.event_date.strftime('%B %d, %Y') if event.event_date else 'TBA' }}</span>
+            <span>⏰ Time: {{ event.event_time.strftime('%I:%M %p') if event.event_time else 'TBA' }}</span>
+          </div>
+        </article>
+        {% endfor %}
+        {% for event in ongoing_events %}
+        <article class="event-card">
+          <h3>{{ event.title }}</h3>
+          <div class="event-meta">
+            <span>📅 Date: {{ event.event_date.strftime('%B %d, %Y') if event.event_date else 'TBA' }}</span>
+            <span>⏰ Time: {{ event.event_time.strftime('%I:%M %p') if event.event_time else 'TBA' }}</span>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">No event schedule available</div>
+      {% endif %}
+    </section>
+
+    <!-- VIEW EVENT VENUE -->
+    <section class="events-section">
+      <div class="section-header">
+        <h2 class="section-title">📍 View Event Venue</h2>
+      </div>
+      {% if upcoming_events or ongoing_events or finished_events %}
+      <div class="events-grid">
+        {% for event in upcoming_events %}
+        <article class="event-card">
+          <h3>{{ event.title }}</h3>
+          <div class="event-meta">
+            <span>📍 Location: {{ event.location or 'Location TBA' }}</span>
+            <span>🏢 Venue: {{ event.venue or 'Venue TBA' }}</span>
+          </div>
+        </article>
+        {% endfor %}
+        {% for event in ongoing_events %}
+        <article class="event-card">
+          <h3>{{ event.title }}</h3>
+          <div class="event-meta">
+            <span>📍 Location: {{ event.location or 'Location TBA' }}</span>
+            <span>🏢 Venue: {{ event.venue or 'Venue TBA' }}</span>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">No venue information available</div>
+      {% endif %}
+    </section>
+
+    <!-- VIEW EVENT STATUS -->
+    <section class="events-section">
+      <div class="section-header">
+        <h2 class="section-title">📊 View Event Status</h2>
+      </div>
+      {% if upcoming_events or ongoing_events or finished_events %}
+      <div class="events-grid">
+        {% for event in upcoming_events %}
+        <article class="event-card">
+          <h3>{{ event.title }}</h3>
+          <div class="event-meta">
+            <span>🟢 Status: Upcoming</span>
+            <span>👥 Capacity: {{ event.capacity or 'N/A' }}</span>
+          </div>
+        </article>
+        {% endfor %}
+        {% for event in ongoing_events %}
+        <article class="event-card">
+          <h3>{{ event.title }}</h3>
+          <div class="event-meta">
+            <span>🟡 Status: Ongoing</span>
+            <span>👥 Capacity: {{ event.capacity or 'N/A' }}</span>
+          </div>
+        </article>
+        {% endfor %}
+        {% for event in finished_events %}
+        <article class="event-card">
+          <h3>{{ event.title }}</h3>
+          <div class="event-meta">
+            <span>⚪ Status: Finished</span>
+            <span>👥 Capacity: {{ event.capacity or 'N/A' }}</span>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">No status information available</div>
+      {% endif %}
+    </section>
+
+    <!-- ACCESS ELECTION -->
+    <section class="events-section">
+      <div class="section-header">
+        <h2 class="section-title">🗳️ Access Election</h2>
+      </div>
+      {% if upcoming_events or ongoing_events %}
+      <div class="events-grid">
+        {% for event in upcoming_events %}
+        {% if event.has_voting and elections.get(event.id) %}
+        <article class="event-card">
+          <h3>{{ event.title }} - Election</h3>
+          <p>Vote for candidates in this event's election</p>
+          <div class="event-actions">
+            <a class="event-btn primary" href="{{ url_for('voting.ballot', election_id=elections.get(event.id).id) }}">Vote Now</a>
+          </div>
+        </article>
+        {% endif %}
+        {% endfor %}
+        {% for event in ongoing_events %}
+        {% if event.has_voting and elections.get(event.id) %}
+        <article class="event-card">
+          <h3>{{ event.title }} - Election</h3>
+          <p>Vote for candidates in this event's election</p>
+          <div class="event-actions">
+            <a class="event-btn primary" href="{{ url_for('voting.ballot', election_id=elections.get(event.id).id) }}">Vote Now</a>
+          </div>
+        </article>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">No elections available</div>
+      {% endif %}
+    </section>
+  </main>
+</div>
+{% endblock %}

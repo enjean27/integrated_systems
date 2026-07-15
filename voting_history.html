@@ -1,0 +1,324 @@
+{% extends 'base.html' %} {% block title %}My Votes | Integrated Portal{%
+endblock %} {% block head_extras %}
+<style>
+  .voting-history-page {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  /* SIDEBAR */
+  .voting-sidebar {
+    position: sticky;
+    top: 24px;
+    height: fit-content;
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.96),
+      rgba(31, 41, 55, 0.98)
+    );
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  }
+
+  .sidebar-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sidebar-nav a {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #cbd5e1;
+    text-decoration: none;
+    background: rgba(17, 24, 39, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.08);
+    transition: all 0.25s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .sidebar-nav a:hover {
+    background: rgba(37, 99, 235, 0.12);
+    color: #f8fafc;
+    border-color: rgba(37, 99, 235, 0.24);
+    transform: translateX(4px);
+  }
+
+  .sidebar-nav a.active {
+    background: linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.2),
+      rgba(59, 130, 246, 0.12)
+    );
+    color: #bfdbfe;
+    border-color: rgba(37, 99, 235, 0.4);
+  }
+
+  /* MAIN CONTENT */
+  .voting-history-main {
+    display: grid;
+    gap: 24px;
+  }
+
+  /* HEADER */
+  .voting-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .header-info h1 {
+    font-size: 2.2rem;
+    margin: 0 0 8px 0;
+    color: #f8fafc;
+  }
+
+  .header-info p {
+    color: #94a3b8;
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  /* VOTES GRID */
+  .votes-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  /* VOTE CARD */
+  .vote-card {
+    background: #111827;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    display: grid;
+    gap: 12px;
+  }
+
+  .vote-card:hover {
+    border-color: rgba(37, 99, 235, 0.24);
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: rgba(34, 197, 94, 0.15);
+    color: #86efac;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    white-space: nowrap;
+  }
+
+  .card-date {
+    color: #94a3b8;
+    font-size: 0.9rem;
+  }
+
+  .vote-card h3 {
+    font-size: 1.1rem;
+    color: #f8fafc;
+    margin: 0;
+  }
+
+  .vote-label {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .vote-choice {
+    color: #bfdbfe;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .vote-meta {
+    display: grid;
+    gap: 6px;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #94a3b8;
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  .empty-state h3 {
+    color: #f8fafc;
+    margin: 0 0 8px 0;
+    font-size: 1.3rem;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .voting-history-page {
+      grid-template-columns: 1fr;
+    }
+
+    .voting-sidebar {
+      position: static;
+    }
+
+    .sidebar-nav {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .sidebar-nav a {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .voting-history-page {
+      margin: 16px auto;
+      gap: 16px;
+    }
+
+    .header-info h1 {
+      font-size: 1.8rem;
+    }
+
+    .votes-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .votes-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="voting-history-page">
+  <!-- SIDEBAR -->
+  <aside class="voting-sidebar">
+    <div class="sidebar-title">🗳️ Navigation</div>
+    <nav class="sidebar-nav">
+      <a
+        class="{% if request.path == url_for('voting.index') %}active{% endif %}"
+        href="{{ url_for('voting.index') }}"
+        >Elections</a
+      >
+      <a
+        class="{% if request.path == url_for('voting.history') %}active{% endif %}"
+        href="{{ url_for('voting.history') }}"
+        >My Votes</a
+      >
+      <a
+        class="{% if request.path == url_for('voting.results') %}active{% endif %}"
+        href="{{ url_for('voting.results') }}"
+        >Results</a
+      >
+      <a
+        class="{% if request.path == url_for('voting.elections') %}active{% endif %}"
+        href="{{ url_for('voting.elections') }}"
+        >All Elections</a
+      >
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="voting-history-main">
+    <!-- HEADER -->
+    <div class="voting-history-header">
+      <div class="header-info">
+        <h1>My Votes</h1>
+        <p>Track the elections you've participated in and view your choices</p>
+      </div>
+    </div>
+
+    <!-- VOTES GRID -->
+    {% if votes %}
+    <div class="votes-grid">
+      {% for item in votes %}
+      <article class="vote-card">
+        <div class="card-header">
+          <span class="card-badge">✓ Recorded</span>
+          <span class="card-date"
+            >{{ item.vote.created_at.strftime('%b %d, %Y') }}</span
+          >
+        </div>
+        <h3>
+          {{ item.vote.election.title if item.vote.election else 'Election #' ~
+          item.vote.election_id }}
+        </h3>
+        <div>
+          <p class="vote-label">Your Choice:</p>
+          <p class="vote-choice">
+            {% if item.candidate %}{{ item.candidate.name }}{% else %}{{
+            item.vote.choice }}{% endif %}
+          </p>
+        </div>
+        <div class="vote-meta">
+          <span
+            >📋 Position: {{ item.candidate.position if item.candidate else
+            'N/A' }}</span
+          >
+          <span
+            >⏰ Voted on {{ item.vote.created_at.strftime('%b %d at %H:%M')
+            }}</span
+          >
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon">🗳️</div>
+      <h3>No Voting History</h3>
+      <p>
+        You haven't voted in any elections yet. Check the Elections page to
+        participate.
+      </p>
+    </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

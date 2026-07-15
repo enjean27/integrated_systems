@@ -1,0 +1,142 @@
+{% extends 'base.html' %} {% block title %}Manage Events | Admin{% endblock %} {% block head_extras %}
+<style>
+  .events-hero {
+    display: grid;
+    gap: 20px;
+  }
+
+  .event-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 22px 24px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+
+  .event-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 45px rgba(0, 0, 0, 0.22);
+    border-color: rgba(37, 99, 235, 0.18);
+  }
+
+  .event-meta strong {
+    display: block;
+    font-size: 1.05rem;
+    color: #f8fafc;
+  }
+
+  .event-meta span {
+    color: #94a3b8;
+    font-size: 0.95rem;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #dbeafe;
+    background: rgba(37, 99, 235, 0.18);
+    border: 1px solid rgba(37, 99, 235, 0.22);
+    white-space: nowrap;
+  }
+
+  .action-button-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    color: #f8fafc;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+  }
+
+  .action-button:hover {
+    background: rgba(37, 99, 235, 0.12);
+  }
+
+  .action-button.primary {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+  }
+
+  .action-button.primary:hover {
+    background: #1d4ed8;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container page-shell">
+  <section class="page-hero card events-hero">
+    <div>
+      <span class="hero-chip">Manage Events</span>
+      <h1>Event Management</h1>
+      <p>
+        Review all published events, see their dates and locations, and keep the
+        portal calendar organized.
+      </p>
+    </div>
+    <div class="card-actions">
+      <a class="btn btn-secondary" href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+      <a class="btn btn-primary" href="{{ url_for('admin.create_event') }}">Create Event</a>
+      <a class="btn btn-primary" href="{{ url_for('admin.manage_elections') }}">Manage Elections</a>
+    </div>
+  </section>
+  <section class="page-hero card events-hero">
+    <div>
+      <p>Use this panel to view, edit, delete, and schedule events. Assign organizers and keep event status updated with upcoming, ongoing, completed, or cancelled options.</p>
+    </div>
+  </section>
+
+  {% if events %}
+  <section class="list-grid">
+    {% for e in events %}
+    <article class="event-card">
+      <div class="event-meta">
+        <strong>{{ e.title }}</strong>
+        <span>{{ e.event_date or 'Date pending' }} · {{ e.event_time or 'Time not set' }}</span>
+        <span>{{ organizer_names.get(e.organizer_id, 'Organizer not assigned') }}</span>
+        <span class="status-pill">{{ e.status | capitalize }}</span>
+      </div>
+      <div class="action-button-group">
+        <a class="action-button" href="{{ url_for('admin.view_event', event_id=e.id) }}">View</a>
+        <a class="action-button" href="{{ url_for('admin.edit_event', event_id=e.id) }}">Edit</a>
+        <a class="action-button" href="{{ url_for('admin.edit_event', event_id=e.id) }}">Assign Organizer</a>
+        <a class="action-button" href="{{ url_for('admin.delete_event', event_id=e.id) }}">Delete</a>
+        <a class="action-button primary" href="{{ url_for('admin.set_event_status', event_id=e.id, status='upcoming') }}">Upcoming</a>
+        <a class="action-button primary" href="{{ url_for('admin.set_event_status', event_id=e.id, status='ongoing') }}">Ongoing</a>
+        <a class="action-button primary" href="{{ url_for('admin.set_event_status', event_id=e.id, status='completed') }}">Completed</a>
+        <a class="action-button primary" href="{{ url_for('admin.set_event_status', event_id=e.id, status='cancelled') }}">Cancelled</a>
+      </div>
+    </article>    {% endfor %}
+  </section>
+  {% else %}
+  <div class="empty-state card">
+    <strong>No events found.</strong>
+    <p>
+      Once events are created, they will appear here with their date and
+      location.
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

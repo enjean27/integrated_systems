@@ -1,0 +1,15 @@
+{% extends 'base.html' %} {% block title %}Certificates | Integrated Portal{%
+endblock %} {% block content %}
+<div class="container" style="max-width: 900px; margin: 32px auto">
+  <h1>Certificates</h1>
+  {% if records %}
+  <ul>
+    {% for c in records %}
+    <li>Event {{ c.event_id }} — Issued {{ c.issued_at }}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No certificates issued.</p>
+  {% endif %}
+</div>
+{% endblock %}

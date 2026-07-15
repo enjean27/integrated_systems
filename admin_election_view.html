@@ -1,0 +1,195 @@
+{% extends 'base.html' %} {% block title %}View Election | Admin{% endblock %}
+{% block head_extras %}
+<style>
+  .election-view-shell {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+
+  .election-view-card {
+    padding: 32px;
+    border-radius: 28px;
+    background: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  }
+
+  .election-view-card h1 {
+    margin: 0 0 10px;
+    color: #f8fafc;
+  }
+
+  .election-view-card p {
+    margin: 0 0 18px;
+    color: #cbd5e1;
+    line-height: 1.75;
+  }
+
+  .section-row {
+    display: grid;
+    gap: 18px;
+    margin-top: 24px;
+  }
+
+  .detail-block {
+    padding: 22px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+  }
+
+  .detail-block strong {
+    display: block;
+    color: #f8fafc;
+    margin-bottom: 10px;
+  }
+
+  .detail-block span,
+  .detail-block p {
+    color: #94a3b8;
+    line-height: 1.7;
+  }
+
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .button-row a,
+  .button-row button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 18px;
+    border-radius: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid transparent;
+  }
+
+  .button-row .btn-secondary {
+    background: rgba(255, 255, 255, 0.04);
+    color: #f8fafc;
+    border-color: rgba(148, 163, 184, 0.16);
+  }
+
+  .button-row .btn-secondary:hover {
+    background: rgba(37, 99, 235, 0.12);
+  }
+
+  .button-row .btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .button-row .btn-primary:hover {
+    background: #1d4ed8;
+  }
+
+  .list-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.14);
+    color: #bfdbfe;
+    font-weight: 700;
+    border: 1px solid rgba(37, 99, 235, 0.18);
+    margin-right: 8px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container election-view-shell">
+  <section class="election-view-card card">
+    <div>
+      <span class="hero-chip">Election Details</span>
+      <h1>{{ election.title }}</h1>
+      <p>
+        {{ election.description or 'No description provided for this election.'
+        }}
+      </p>
+    </div>
+
+    <div class="button-row">
+      <a
+        class="btn btn-secondary"
+        href="{{ url_for('admin.manage_elections') }}"
+        >Back to Elections</a
+      >
+      <a
+        class="btn btn-secondary"
+        href="{{ url_for('admin.edit_election', election_id=election.id) }}"
+        >Edit</a
+      >
+      <a
+        class="btn btn-secondary"
+        href="{{ url_for('admin.delete_election', election_id=election.id) }}"
+        >Delete</a
+      >
+      {% if election.status != 'open' %}
+      <a
+        class="btn btn-primary"
+        href="{{ url_for('admin.open_election', election_id=election.id) }}"
+        >Open</a
+      >
+      {% endif %} {% if election.status != 'closed' %}
+      <a
+        class="btn btn-primary"
+        href="{{ url_for('admin.close_election', election_id=election.id) }}"
+        >Close</a
+      >
+      {% endif %}
+    </div>
+
+    <div class="section-row">
+      <div class="detail-block">
+        <strong>Election Status</strong>
+        <span>{{ election.status | capitalize }}</span>
+      </div>
+
+      <div class="detail-block">
+        <strong>Linked Event</strong>
+        <span>{{ event.title if event else 'Standalone election' }}</span>
+      </div>
+
+      <div class="detail-block">
+        <strong>Schedule</strong>
+        <span
+          >Start: {{ election.start_datetime.strftime('%b %d, %Y %H:%M') if
+          election.start_datetime else 'Not set' }}</span
+        >
+        <br />
+        <span
+          >End: {{ election.end_datetime.strftime('%b %d, %Y %H:%M') if
+          election.end_datetime else 'Not set' }}</span
+        >
+      </div>
+
+      <div class="detail-block">
+        <strong>Positions</strong>
+        {% if positions %}
+        <div>
+          {% for position in positions %}
+          <span class="list-pill">{{ position.name }}</span>
+          {% endfor %}
+        </div>
+        {% else %}
+        <span>No positions configured yet.</span>
+        {% endif %}
+      </div>
+
+      <div class="detail-block">
+        <strong>Candidate Count</strong>
+        <span>{{ candidates | length }}</span>
+      </div>
+
+      <div class="detail-block">
+        <strong>Vote Count</strong>
+        <span>{{ vote_count }}</span>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

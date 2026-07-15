@@ -1,0 +1,139 @@
+{% extends 'base.html' %} {% block title %}View Voter | Admin{% endblock %} {%
+block head_extras %}
+<style>
+  .voter-view-shell {
+    max-width: 900px;
+    margin: 0 auto;
+    padding-top: 10px;
+  }
+
+  .voter-view-card {
+    padding: 32px;
+    border-radius: 28px;
+    background: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  }
+
+  .voter-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .voter-header h1 {
+    margin: 0;
+    font-size: clamp(2rem, 2.4vw, 2.6rem);
+    color: #eef2ff;
+  }
+
+  .voter-details {
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .detail-row {
+    display: grid;
+    gap: 6px;
+  }
+
+  .detail-row strong {
+    color: #f8fafc;
+  }
+
+  .detail-row span {
+    color: #94a3b8;
+  }
+
+  .vote-history {
+    margin-top: 32px;
+    display: grid;
+    gap: 16px;
+  }
+
+  .vote-card {
+    padding: 20px 22px;
+    border-radius: 22px;
+    background: #111827;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+  }
+
+  .vote-card strong {
+    display: block;
+    color: #f8fafc;
+    margin-bottom: 6px;
+  }
+
+  .vote-card span {
+    color: #94a3b8;
+    font-size: 0.95rem;
+  }
+
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container voter-view-shell">
+  <section class="voter-view-card card">
+    <div class="voter-header">
+      <div>
+        <span class="hero-chip">Voter Status</span>
+        <h1>{{ voter.name }}</h1>
+        <p class="muted">Email: {{ voter.email }}</p>
+      </div>
+      <div class="button-row">
+        <a
+          class="btn btn-primary"
+          href="{{ url_for('admin.edit_voter', voter_id=voter.id) }}"
+          >Edit</a
+        >
+        <a class="btn btn-primary" href="{{ url_for('admin.manage_votes') }}"
+          >Back</a
+        >
+      </div>
+    </div>
+
+    <div class="voter-details">
+      <div class="detail-row">
+        <strong>Voter Status</strong>
+        <span>{{ 'Active' if voter.active else 'Inactive' }}</span>
+      </div>
+      <div class="detail-row">
+        <strong>Registered</strong>
+        <span>{{ voter.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+      </div>
+      <div class="detail-row">
+        <strong>Vote History</strong>
+        <span
+          >{{ votes|length }} {{ 'record' if votes|length == 1 else 'records'
+          }}</span
+        >
+      </div>
+    </div>
+
+    <section class="vote-history">
+      {% if votes %} {% for vote in votes %}
+      <article class="vote-card">
+        <strong>{{ vote.election }}</strong>
+        <span>Choice: {{ vote.choice }}</span><br />
+        <span>Cast at: {{ vote.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+      </article>
+      {% endfor %} {% else %}
+      <div class="empty-state card">
+        <strong>No vote activity found for this voter.</strong>
+        <p>
+          This student has not cast a vote yet, or their votes have been reset.
+        </p>
+      </div>
+      {% endif %}
+    </section>
+  </section>
+</div>
+{% endblock %}

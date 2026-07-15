@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} | Admin{% endblock %}
+{% block head_extras %}
+<style>
+  .election-form-shell {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .election-form-card {
+    padding: 32px;
+    border-radius: 28px;
+    background: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  }
+  .election-form-card h1 {
+    margin: 0 0 10px;
+    color: #f8fafc;
+  }
+  .election-form-card p {
+    margin: 0 0 28px;
+    color: #cbd5e1;
+    line-height: 1.75;
+  }
+  .form-grid {
+    display: grid;
+    gap: 20px;
+  }
+  .form-row {
+    display: grid;
+    gap: 12px;
+  }
+  .form-row label {
+    color: #9ca3af;
+    font-weight: 700;
+  }
+  .form-row input,
+  .form-row select,
+  .form-row textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid #374151;
+    background: #111827;
+    color: #f8fafc;
+    font-size: 1rem;
+    transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  }
+  .form-row textarea {
+    min-height: 140px;
+    resize: vertical;
+  }
+  .form-row input:focus,
+  .form-row select:focus,
+  .form-row textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+  }
+  .schedule-grid,
+  .button-row {
+    display: grid;
+    gap: 18px;
+  }
+  .schedule-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+  .button-row {
+    grid-template-columns: repeat(auto-fit, minmax(160px, max-content));
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.95rem 1.5rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: #f8fafc;
+    border-radius: 14px;
+    text-decoration: none;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+  }
+  .btn-secondary:hover {
+    background: rgba(37, 99, 235, 0.14);
+  }
+  .form-note {
+    color: #94a3b8;
+    font-size: 0.95rem;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container election-form-shell">
+  <section class="election-form-card card">
+    <div>
+      <span class="hero-chip">{{ page_title }}</span>
+      <h1>{{ page_title }}</h1>
+      <p>{% if election %}{% else %}{% endif %}</p>
+      {% if election %}
+      <div class="button-row">
+        <a class="btn btn-secondary" href="{{ url_for('admin.view_election', election_id=election.id) }}">View</a>
+        <a class="btn btn-secondary" href="{{ url_for('admin.delete_election', election_id=election.id) }}">Delete</a>
+        {% if election.status != 'open' %}
+        <a class="btn btn-primary" href="{{ url_for('admin.open_election', election_id=election.id) }}">Open</a>
+        {% endif %}
+        {% if election.status != 'closed' %}
+        <a class="btn btn-primary" href="{{ url_for('admin.close_election', election_id=election.id) }}">Close</a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <form method="post" action="{{ form_action }}">
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="title">Election Title</label>
+          <input id="title" name="title" type="text" placeholder="SSC Election 2026" value="{{ election.title if election else '' }}" required />
+        </div>
+
+        <div class="form-row">
+          <label for="event_id">Event</label>
+          <select id="event_id" name="event_id">
+            <option value="" {% if not election or not election.event_id %}selected{% endif %}>Unlinked election</option>
+            {% for event in events %}
+            <option value="{{ event.id }}" {% if election and election.event_id == event.id %}selected{% endif %}>{{ event.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="schedule-grid">
+          <div class="form-row">
+            <label for="start_date">Start Date</label>
+            <input id="start_date" name="start_date" type="date" value="{{ election.start_datetime.strftime('%Y-%m-%d') if election and election.start_datetime else '' }}" />
+          </div>
+          <div class="form-row">
+            <label for="start_time">Start Time</label>
+            <input id="start_time" name="start_time" type="time" value="{{ election.start_datetime.strftime('%H:%M') if election and election.start_datetime else '' }}" />
+          </div>
+        </div>
+
+        <div class="schedule-grid">
+          <div class="form-row">
+            <label for="end_date">End Date</label>
+            <input id="end_date" name="end_date" type="date" value="{{ election.end_datetime.strftime('%Y-%m-%d') if election and election.end_datetime else '' }}" />
+          </div>
+          <div class="form-row">
+            <label for="end_time">End Time</label>
+            <input id="end_time" name="end_time" type="time" value="{{ election.end_datetime.strftime('%H:%M') if election and election.end_datetime else '' }}" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="positions">Positions</label>
+          <textarea id="positions" name="positions" placeholder="President, Vice President, Secretary, Treasurer">{{ positions }}</textarea>
+          <span class="form-note">Separate each position with a comma so you can add or remove roles before opening the election.</span>
+        </div>
+
+        <div class="form-row">
+          <label for="status">Election Status</label>
+          <select id="status" name="status" required>
+            {% for option in statuses %}
+            <option value="{{ option }}" {% if election and election.status == option %}selected{% endif %}>{{ option | capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="button-row">
+          <a class="btn btn-secondary" href="{{ url_for('admin.manage_elections') }}">Cancel</a>
+          <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+        </div>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

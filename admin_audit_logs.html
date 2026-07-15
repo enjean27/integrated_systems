@@ -1,0 +1,35 @@
+{% extends 'base.html' %} {% block title %}Audit Logs | Admin{% endblock %} {%
+block content %}
+<div class="container page-shell">
+  <section class="page-hero card">
+    <span class="hero-chip">Audit Logs</span>
+    <h1>Activity Audit</h1>
+    <p>
+      Review system activity and secure audit data from the admin dashboard.
+    </p>
+    <div class="action-row">
+      <a class="btn btn-secondary" href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+    </div>
+  </section>
+
+  {% if logs %}
+  <section class="list-grid">
+    {% for l in logs %}
+    <article class="list-card">
+      <div>
+        <strong>{{ l }}</strong>
+      </div>
+      <div class="item-pill">Log</div>
+    </article>
+    {% endfor %}
+  </section>
+  {% else %}
+  <div class="empty-state card">
+    <strong>No audit logs available.</strong>
+    <p>
+      Audit entries will display here once the activity log feature is enabled.
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

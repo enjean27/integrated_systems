@@ -1,0 +1,74 @@
+{% extends 'base.html' %} {% block title %}Reports | Admin{% endblock %} {% block head_extras %}
+<style>
+  .reports-hero {
+    display: grid;
+    gap: 20px;
+  }
+
+  .report-grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .report-card {
+    padding: 22px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+  }
+
+  .report-card h3 {
+    margin: 0 0 10px;
+    color: #f8fafc;
+  }
+
+  .report-card p {
+    margin: 0;
+    color: #94a3b8;
+    line-height: 1.7;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container page-shell">
+  <section class="page-hero card reports-hero">
+    <div>
+      <span class="hero-chip">Reports</span>
+      <h1>Insights & Reports</h1>
+      <p>
+        Monitor platform activity and get an overview of elections, participation,
+        and user engagement from one polished reports area.
+      </p>
+    </div>
+    <div class="card-actions">
+      <a class="btn btn-primary" href="{{ url_for('admin.dashboard') }}">Back to dashboard</a>
+      <a class="btn btn-primary" href="{{ url_for('results.elections_results') }}">View Results</a>
+    </div>
+  </section>
+
+  <div class="report-grid">
+    <article class="report-card">
+      <h3>Report status</h3>
+      <p>
+        Data insights are being prepared. This view will display charts, exports,
+        and historical trends once report generation is enabled.
+      </p>
+    </article>
+    <article class="report-card">
+      <h3>Analysis roadmap</h3>
+      <p>
+        Expect future analytics for voter turnout, top events, candidate
+        performance, and user engagement across the portal.
+      </p>
+    </article>
+    <article class="report-card">
+      <h3>Next steps</h3>
+      <p>
+        Later updates will add CSV export, filtering, and custom dashboards for
+        administrative reporting.
+      </p>
+    </article>
+  </div>
+</div>
+{% endblock %}

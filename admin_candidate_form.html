@@ -1,0 +1,197 @@
+{% extends 'base.html' %} {% block title %}{{ page_title }} | Admin{% endblock
+%} {% block head_extras %}
+<style>
+  .candidate-form-shell {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .candidate-form-card {
+    padding: 32px;
+    border-radius: 28px;
+    background: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  }
+
+  .candidate-form-card h1 {
+    margin: 0 0 10px;
+    color: #f8fafc;
+  }
+
+  .candidate-form-card p {
+    margin: 0 0 24px;
+    color: #cbd5e1;
+    line-height: 1.75;
+  }
+
+  .form-grid {
+    display: grid;
+    gap: 20px;
+  }
+
+  .form-row {
+    display: grid;
+    gap: 12px;
+  }
+
+  .form-row label {
+    color: #9ca3af;
+    font-weight: 700;
+  }
+
+  .form-row input,
+  .form-row select,
+  .form-row textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid #374151;
+    background: #111827;
+    color: #f8fafc;
+    font-size: 1rem;
+    transition:
+      border-color 0.22s ease,
+      box-shadow 0.22s ease,
+      background 0.22s ease;
+  }
+
+  .form-row textarea {
+    min-height: 140px;
+    resize: vertical;
+  }
+
+  .form-row input:focus,
+  .form-row select:focus,
+  .form-row textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+  }
+
+  .schedule-grid,
+  .button-row {
+    display: grid;
+    gap: 18px;
+  }
+
+  .schedule-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .button-row {
+    grid-template-columns: repeat(auto-fit, minmax(140px, max-content));
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  .form-note {
+    color: #94a3b8;
+    font-size: 0.95rem;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container candidate-form-shell">
+  <section class="candidate-form-card card">
+    <div>
+      <span class="hero-chip">{{ page_title }}</span>
+      <h1>{{ page_title }}</h1>
+      <p>
+        {% if candidate %} Edit candidate profile information, upload a photo
+        URL, assign a position and partylist, and link the candidate to an
+        election. {% else %} Add a new candidate profile with a name, position,
+        partylist, photo URL, and election assignment. {% endif %}
+      </p>
+    </div>
+
+    <form method="post" action="{{ form_action }}">
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="name">Candidate Name</label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            value="{{ candidate.name if candidate else '' }}"
+            placeholder="Jane Doe"
+            required
+          />
+        </div>
+
+        <div class="form-row">
+          <label for="description">Candidate Bio</label>
+          <textarea
+            id="description"
+            name="description"
+            placeholder="Short summary of the candidate's platform."
+          >
+{{ candidate.description if candidate else '' }}</textarea
+          >
+        </div>
+
+        <div class="schedule-grid">
+          <div class="form-row">
+            <label for="position">Assign Position</label>
+            <input
+              id="position"
+              name="position"
+              type="text"
+              value="{{ candidate.position if candidate else '' }}"
+              placeholder="President"
+              required
+            />
+          </div>
+          <div class="form-row">
+            <label for="partylist">Assign Partylist</label>
+            <input
+              id="partylist"
+              name="partylist"
+              type="text"
+              value="{{ candidate.partylist if candidate else '' }}"
+              placeholder="Student Voice Party"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="image_url">Upload Candidate Photo</label>
+          <input
+            id="image_url"
+            name="image_url"
+            type="url"
+            value="{{ candidate.image_url if candidate else '' }}"
+            placeholder="https://example.com/photo.jpg"
+          />
+          <span class="form-note"
+            >Paste a photo URL for the candidate. This can be a hosted image
+            link.</span
+          >
+        </div>
+
+        <div class="form-row">
+          <label for="election_id">Link Election</label>
+          <select id="election_id" name="election_id" required>
+            <option value="">Select an election</option>
+            {% for election in elections %}
+            <option value="{{ election.id }}" {% if candidate and candidate.election_id == election.id %}selected{% endif %}>
+              {{ election.title }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="button-row">
+          <a
+            class="btn btn-secondary"
+            href="{{ url_for('admin.manage_candidates') }}"
+            >Cancel</a
+          >
+          <button class="btn btn-primary" type="submit">
+            {{ submit_label }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Register | Integrated School Portal</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/register.css') }}"
+    />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="auth-card">
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %}
+
+        <div class="logo" style="text-align: center; margin-bottom: 18px">
+          <img
+            src="{{ url_for('static', filename='uploads/logo.png') }}"
+            alt="logo"
+            onerror="this.style.display = 'none'"
+            style="height: 110px"
+          />
+        </div>
+
+        <div class="brand">
+          <h1 class="brand-title">Create your student account</h1>
+          <p class="brand-subtitle">
+            Register with your official school email to get started.
+          </p>
+        </div>
+
+        <form
+          method="post"
+          action="{{ url_for('auth.register') }}"
+          autocomplete="on"
+        >
+          <div class="form-field">
+            <label for="student_id">Student ID</label>
+            <input
+              id="student_id"
+              type="text"
+              name="student_id"
+              value="{{ form_data.student_id if form_data else '' }}"
+              required
+              placeholder="e.g. 2024-00123"
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="full_name">Full Name</label>
+            <input
+              id="full_name"
+              type="text"
+              name="full_name"
+              value="{{ form_data.full_name if form_data else '' }}"
+              required
+              placeholder="Your full name"
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="email">School Email</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              value="{{ form_data.email if form_data else '' }}"
+              required
+              placeholder="you@school.edu"
+            />
+          </div>
+
+          <div class="form-field">
+            <label for="course_year">Course / Year</label>
+            <input
+              id="course_year"
+              type="text"
+              name="course_year"
+              value="{{ form_data.course_year if form_data else '' }}"
+              required
+              placeholder="BS Computer Science / 2nd Year"
+            />
+          </div>
+
+          <div class="form-field password-field">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              required
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              data-target="password"
+              aria-label="Show password"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="form-field password-field">
+            <label for="confirm_password">Confirm Password</label>
+            <input
+              id="confirm_password"
+              type="password"
+              name="confirm_password"
+              required
+              placeholder="Re-enter your password"
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              data-target="confirm_password"
+              aria-label="Show confirm password"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+
+          <label class="checkbox-field">
+            <input type="checkbox" name="terms" id="terms" />
+            <span>I agree to the school's terms and policies.</span>
+          </label>
+
+          <div class="action-row">
+            <button class="btn-submit" type="submit">Register</button>
+            <a class="secondary-link" href="{{ url_for('auth.login') }}"
+              >Already have an account? Sign In</a
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      document.querySelectorAll(".toggle-password").forEach(function (button) {
+        button.addEventListener("click", function () {
+          var targetId = button.getAttribute("data-target");
+          var input = document.getElementById(targetId);
+          if (!input) {
+            return;
+          }
+          if (input.type === "password") {
+            input.type = "text";
+            button.setAttribute("aria-label", "Hide password");
+          } else {
+            input.type = "password";
+            button.setAttribute("aria-label", "Show password");
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

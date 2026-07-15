@@ -1,0 +1,15 @@
+{% extends 'base.html' %} {% block title %}Notifications | Integrated Portal{%
+endblock %} {% block content %}
+<div class="container" style="max-width: 900px; margin: 32px auto">
+  <h1>Notifications</h1>
+  {% if notifications %}
+  <ul>
+    {% for n in notifications %}
+    <li>{{ n }}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No notifications.</p>
+  {% endif %}
+</div>
+{% endblock %}

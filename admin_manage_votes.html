@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% block title %}Manage Votes | Admin{% endblock %}
+{% block head_extras %}
+<style>
+  .votes-shell {
+    display: grid;
+    gap: 28px;
+  }
+
+  .votes-hero {
+    display: grid;
+    gap: 16px;
+    padding: 28px;
+    border-radius: 26px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(31, 41, 55, 0.98));
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+  }
+
+  .votes-hero h1 {
+    margin: 0;
+    font-size: clamp(2rem, 2.4vw, 2.6rem);
+    color: #eef2ff;
+  }
+
+  .votes-hero p {
+    margin: 0;
+    color: #cbd5e1;
+    line-height: 1.75;
+  }
+
+  .action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .voter-grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  .voter-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 18px;
+    align-items: center;
+    padding: 22px 24px;
+    border-radius: 22px;
+    background: #111827;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.32);
+  }
+
+  .voter-meta {
+    display: grid;
+    gap: 8px;
+  }
+
+  .voter-meta strong {
+    color: #f8fafc;
+    font-size: 1rem;
+  }
+
+  .voter-meta span {
+    color: #94a3b8;
+    font-size: 0.95rem;
+  }
+
+  .voter-actions {
+    display: grid;
+    gap: 10px;
+    justify-items: end;
+  }
+
+  .voter-actions a {
+    min-width: 138px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    color: #dbeafe;
+    border: 1px solid rgba(56, 189, 248, 0.24);
+    background: rgba(56, 189, 248, 0.12);
+    white-space: nowrap;
+  }
+
+  .pill.inactive {
+    background: rgba(248, 113, 113, 0.12);
+    border-color: rgba(248, 113, 113, 0.24);
+    color: #fecaca;
+  }
+
+  .recent-votes {
+    display: grid;
+    gap: 16px;
+  }
+
+  .recent-vote-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    padding: 20px 24px;
+    border-radius: 22px;
+    background: #111827;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+  }
+
+  .recent-vote-card strong {
+    color: #f8fafc;
+  }
+
+  .recent-vote-card span {
+    color: #94a3b8;
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 720px) {
+    .voter-card,
+    .recent-vote-card {
+      grid-template-columns: 1fr;
+    }
+
+    .voter-actions {
+      justify-items: start;
+    }
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container votes-shell">
+  <section class="votes-hero card">
+    <div>
+      <span class="hero-chip">Manage Votes</span>
+      <h1>Voter & Voting Administration</h1>
+      <p>
+        Use this admin panel to add voters, import voter lists, manage voter
+        access, and reset voting status when needed.
+      </p>
+    </div>
+    <div class="action-row">
+      <a class="btn btn-secondary" href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+      <a class="btn btn-primary" href="{{ url_for('admin.create_voter') }}">Add Voter</a>
+      <a class="btn btn-primary" href="{{ url_for('admin.import_voters') }}">Import Voters</a>
+    </div>
+  </section>
+
+  {% if voters %}
+  <section class="voter-grid">
+    {% for voter in voters %}
+    <article class="voter-card">
+      <div class="voter-meta">
+        <strong>{{ voter.name }}</strong>
+        <span>{{ voter.email }}</span>
+        <span>
+          Status: <span class="pill{% if not voter.active %} inactive{% endif %}">{{ voter.status_label }}</span>
+          · Votes Cast: {{ voter.vote_count }}
+        </span>
+      </div>
+      <div class="voter-actions">
+        <a class="btn btn-primary" href="{{ url_for('admin.view_voter', voter_id=voter.id) }}">View Status</a>
+        <a class="btn btn-primary" href="{{ url_for('admin.edit_voter', voter_id=voter.id) }}">Edit Voter</a>
+        <a class="btn btn-primary" href="{{ url_for('admin.toggle_voter_active', voter_id=voter.id) }}">{{ 'Deactivate' if voter.active else 'Activate' }}</a>
+        <a class="btn btn-primary" href="{{ url_for('admin.reset_voter_status', voter_id=voter.id) }}">Reset Status</a>
+        <a class="btn btn-primary" href="{{ url_for('admin.delete_voter', voter_id=voter.id) }}">Delete Voter</a>
+      </div>
+    </article>
+    {% endfor %}
+  </section>
+  {% else %}
+  <div class="empty-state card">
+    <strong>No voters are registered yet.</strong>
+    <p>
+      Add new voters or import a voter list to begin managing voting access.
+    </p>
+  </div>
+  {% endif %}
+
+  <section class="recent-votes card">
+    <div class="page-hero">
+      <span class="hero-chip">Recent Votes</span>
+      <h1>Recent Voting Activity</h1>
+    </div>
+
+    {% if recent_votes %}
+    <div class="recent-votes">
+      {% for vote in recent_votes %}
+      <article class="recent-vote-card">
+        <div>
+          <strong>{{ vote.voter }}</strong>
+          <span>{{ vote.email }}</span>
+          <span>{{ vote.election }}</span>
+        </div>
+        <div>
+          <span>{{ vote.choice }}</span>
+          <span>{{ vote.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state card">
+      <strong>No vote records are available yet.</strong>
+      <p>
+        Voting results will appear here once students start participating in active elections.
+      </p>
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

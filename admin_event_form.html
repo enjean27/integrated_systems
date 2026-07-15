@@ -1,0 +1,244 @@
+{% extends 'base.html' %} {% block title %}{{ page_title }} | Admin{% endblock
+%} {% block head_extras %}
+<style>
+  .event-form-shell {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .event-form-card {
+    padding: 32px;
+    border-radius: 28px;
+    background: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  }
+
+  .event-form-card h1 {
+    margin: 0 0 10px;
+    color: #f8fafc;
+  }
+
+  .event-form-card p {
+    margin: 0 0 24px;
+    color: #cbd5e1;
+    line-height: 1.7;
+  }
+
+  .form-grid {
+    display: grid;
+    gap: 20px;
+  }
+
+  .form-row {
+    display: grid;
+    gap: 12px;
+  }
+
+  .form-row label {
+    color: #9ca3af;
+    font-weight: 700;
+  }
+
+  .form-row input,
+  .form-row select,
+  .form-row textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid #374151;
+    background: #111827;
+    color: #f8fafc;
+    font-size: 1rem;
+    transition:
+      border-color 0.22s ease,
+      box-shadow 0.22s ease,
+      background 0.22s ease;
+  }
+
+  .form-row textarea {
+    min-height: 140px;
+    resize: vertical;
+  }
+
+  .form-row input:focus,
+  .form-row select:focus,
+  .form-row textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+  }
+
+  .schedule-grid,
+  .button-row {
+    display: grid;
+    gap: 18px;
+  }
+
+  .schedule-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .button-row {
+    grid-template-columns: repeat(auto-fit, minmax(160px, max-content));
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  .form-note {
+    color: #94a3b8;
+    font-size: 0.95rem;
+  }
+
+  .button-row .btn-secondary,
+  .button-row .btn-primary {
+    min-width: 140px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container event-form-shell">
+  <section class="event-form-card card">
+    <div>
+      <span class="hero-chip">{{ page_title }}</span>
+      <h1>{{ page_title }}</h1>
+      <p>
+        {% if event %} Update the event schedule, organizer assignment, and
+        status in one place. {% else %} Create a new event with a title,
+        location, schedule, assigned organizer, and event status. {% endif %}
+      </p>
+      {% if event %}
+      <div class="button-row">
+        <a
+          class="btn btn-secondary"
+          href="{{ url_for('admin.view_event', event_id=event.id) }}"
+          >View</a
+        >
+        <a
+          class="btn btn-secondary"
+          href="{{ url_for('admin.delete_event', event_id=event.id) }}"
+          >Delete</a
+        >
+        {% if event.status != 'upcoming' %}
+        <a
+          class="btn btn-primary"
+          href="{{ url_for('admin.set_event_status', event_id=event.id, status='upcoming') }}"
+          >Upcoming</a
+        >
+        {% endif %} {% if event.status != 'ongoing' %}
+        <a
+          class="btn btn-primary"
+          href="{{ url_for('admin.set_event_status', event_id=event.id, status='ongoing') }}"
+          >Ongoing</a
+        >
+        {% endif %} {% if event.status != 'completed' %}
+        <a
+          class="btn btn-primary"
+          href="{{ url_for('admin.set_event_status', event_id=event.id, status='completed') }}"
+          >Completed</a
+        >
+        {% endif %} {% if event.status != 'cancelled' %}
+        <a
+          class="btn btn-primary"
+          href="{{ url_for('admin.set_event_status', event_id=event.id, status='cancelled') }}"
+          >Cancelled</a
+        >
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <form method="post" action="{{ form_action }}">
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="title">Event Title</label>
+          <input
+            id="title"
+            name="title"
+            type="text"
+            placeholder="Student Leadership Summit"
+            value="{{ event.title if event else '' }}"
+            required
+          />
+        </div>
+
+        <div class="form-row">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            placeholder="Describe the event and its goals."
+          >
+{{ event.description if event else '' }}</textarea
+          >
+        </div>
+
+        <div class="form-row">
+          <label for="location">Location</label>
+          <input
+            id="location"
+            name="location"
+            type="text"
+            placeholder="Main Auditorium"
+            value="{{ event.location if event else '' }}"
+          />
+        </div>
+
+        <div class="schedule-grid">
+          <div class="form-row">
+            <label for="event_date">Event Date</label>
+            <input
+              id="event_date"
+              name="event_date"
+              type="date"
+              value="{{ event.event_date.strftime('%Y-%m-%d') if event and event.event_date else '' }}"
+            />
+          </div>
+          <div class="form-row">
+            <label for="event_time">Event Time</label>
+            <input
+              id="event_time"
+              name="event_time"
+              type="time"
+              value="{{ event.event_time.strftime('%H:%M') if event and event.event_time else '' }}"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="organizer_id">Assign Organizer</label>
+          <select id="organizer_id" name="organizer_id">
+            <option value="">No organizer assigned</option>
+            {% for organizer in organizers %}
+            <option value="{{ organizer.id }}" {% if event and event.organizer_id == organizer.id %}selected{% endif %}>
+              {{ organizer.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="status">Event Status</label>
+          <select id="status" name="status" required>
+            {% for option in statuses %}
+            <option value="{{ option }}" {% if event and event.status == option %}selected{% endif %}>
+              {{ option | capitalize }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="button-row">
+          <a
+            class="btn btn-secondary"
+            href="{{ url_for('admin.manage_events') }}"
+            >Cancel</a
+          >
+          <button class="btn btn-primary" type="submit">
+            {{ submit_label }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

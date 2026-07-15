@@ -1,0 +1,160 @@
+{% extends 'base.html' %} {% block title %}Manage Candidates | Admin{% endblock %} {%
+block head_extras %}
+<style>
+  .manage-candidates-shell {
+    display: grid;
+    gap: 24px;
+  }
+
+  .manage-candidates-hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 28px;
+    border-radius: 26px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(31, 41, 55, 0.98));
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+  }
+
+  .manage-candidates-hero h1 {
+    margin: 0;
+    font-size: clamp(2rem, 2.4vw, 2.6rem);
+    color: #eef2ff;
+  }
+
+  .manage-candidates-hero p {
+    margin: 0;
+    color: #cbd5e1;
+    max-width: 560px;
+    line-height: 1.75;
+  }
+
+  .candidate-list {
+    display: grid;
+    gap: 16px;
+  }
+
+  .candidate-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: center;
+    padding: 20px 24px;
+    border-radius: 20px;
+    background: #111827;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+  }
+  .candidate-actions {
+    display: grid;
+    gap: 10px;
+    justify-items: end;
+  }
+  .candidate-actions a {
+    min-width: 130px;
+  }
+  .candidate-meta span {
+    display: block;
+  }
+
+  .candidate-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.1);
+  }
+
+  .candidate-meta {
+    display: grid;
+    gap: 8px;
+  }
+
+  .candidate-meta strong {
+    font-size: 1rem;
+    color: #f8fafc;
+  }
+
+  .candidate-meta span {
+    color: #94a3b8;
+    font-size: 0.96rem;
+  }
+
+  .candidate-position {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    color: #dbeafe;
+    background: rgba(37, 99, 235, 0.18);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    white-space: nowrap;
+  }
+
+  .empty-state {
+    padding: 24px;
+    border-radius: 20px;
+    background: #111827;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    color: #cbd5e1;
+  }
+
+  @media (max-width: 720px) {
+    .candidate-card {
+      grid-template-columns: 1fr;
+    }
+
+    .manage-candidates-hero {
+      padding: 22px;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container manage-candidates-shell">
+  <section class="manage-candidates-hero card">
+    <div>
+      <span class="hero-chip">Manage Candidates</span>
+      <h1>Candidates Directory</h1>
+      <p>
+        View and manage all election candidates with their positions, partylists,
+        and assigned elections. The list is ordered by newest candidates first.
+      </p>
+    </div>
+    <div class="card-actions">
+      <a class="btn btn-secondary" href="{{ url_for('admin.dashboard') }}">Back to Dashboard</a>
+      <a class="btn btn-primary" href="{{ url_for('admin.create_candidate') }}">Add Candidate</a>
+    </div>
+  </section>
+
+  {% if candidates %}
+  <section class="candidate-list">
+    {% for candidate in candidates %}
+    <article class="candidate-card">
+      <div class="candidate-meta">
+        <strong>{{ candidate.name }}</strong>
+        <span>Position: {{ candidate.position }}</span>
+        <span>Partylist: {{ candidate.partylist or 'Not assigned' }}</span>
+        <span>Election: {{ election_titles.get(candidate.election_id, 'Not linked') }}</span>
+        <span>Votes: {{ candidate.vote_count() }}</span>
+      </div>
+      <div class="candidate-actions">
+        <a class="btn btn-primary" href="{{ url_for('admin.view_candidate', candidate_id=candidate.id) }}">View Candidate</a>
+        <a class="btn btn-secondary" href="{{ url_for('admin.edit_candidate', candidate_id=candidate.id) }}">Edit Candidate</a>
+        <a class="btn btn-secondary" href="{{ url_for('admin.delete_candidate', candidate_id=candidate.id) }}" onclick="return confirm('Are you sure you want to delete this candidate?')">Delete Candidate</a>
+      </div>
+    </article>
+    {% endfor %}
+  </section>
+  {% else %}
+  <div class="empty-state card">
+    <strong>No candidates found yet.</strong>
+    <p>
+      Once candidates are added to elections, they will appear here with their
+      positions, partylists, and vote counts.
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

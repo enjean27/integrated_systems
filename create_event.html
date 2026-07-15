@@ -1,0 +1,253 @@
+{% extends 'base.html' %} {% block title %}Create Event | Organizer{% endblock
+%} {% block head_extras %}
+<style>
+  .create-event-page {
+    max-width: 900px;
+    margin: 32px auto;
+    padding: 0 16px;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+  }
+
+  .back-link:hover {
+    color: #1d4ed8;
+  }
+
+  .create-card {
+    background: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  }
+  .create-card h1 {
+    margin-bottom: 12px;
+    color: #f8fafc;
+  }
+  .field-group {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .field-group label {
+    font-weight: 600;
+    color: #cbd5e1;
+  }
+  .field-group input,
+  .field-group textarea {
+    width: 100%;
+    border: 1px solid #374151;
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 1rem;
+    background: #111827;
+    color: #f8fafc;
+  }
+  .field-group input:focus,
+  .field-group textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+    background: #111827;
+  }
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.95rem 1.5rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 12px;
+    text-decoration: none;
+  }
+  .btn-secondary:hover {
+    background: rgba(37, 99, 235, 0.14);
+  }
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="create-event-page">
+  <a class="back-link" href="{{ url_for('organizer.dashboard') }}"
+    >← Back to Dashboard</a
+  >
+
+  <div class="create-card">
+    <h1>{{ page_title }}</h1>
+    <p class="muted">
+      {% if event %}Update your event details, schedule, and status from here.{%
+      else %}Fill in the event details and publish it for attendees to
+      register.{% endif %}
+    </p>
+
+    <form method="post" action="{{ form_action }}">
+      <div class="field-group">
+        <label for="title">Event Title</label>
+        <input
+          id="title"
+          name="title"
+          type="text"
+          placeholder="Enter event title"
+          value="{{ event.title if event else '' }}"
+          required
+        />
+      </div>
+      <div class="field-group">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          rows="5"
+          placeholder="Write a short event description"
+        ></textarea>
+      </div>
+      <div class="field-group">
+        <label for="location">Location</label>
+        <input
+          id="location"
+          name="location"
+          type="text"
+          placeholder="Enter event location"
+        />
+      </div>
+      <div
+        class="field-group"
+        style="
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          display: grid;
+          gap: 16px;
+        "
+      >
+        <div>
+          <label for="event_date">Date</label>
+          <input
+            id="event_date"
+            name="event_date"
+            type="date"
+            value="{{ event.event_date.isoformat() if event and event.event_date else '' }}"
+          />
+        </div>
+        <div>
+          <label for="event_time">Time</label>
+          <input
+            id="event_time"
+            name="event_time"
+            type="time"
+            value="{{ event.event_time.strftime('%H:%M') if event and event.event_time else '' }}"
+          />
+        </div>
+      </div>
+      <div class="field-group">
+        <label>
+          <input
+            type="checkbox"
+            name="has_voting"
+            value="1"
+            {%
+            if
+            event
+            and
+            event.has_voting
+            %}checked{%
+            endif
+            %}
+          />
+          Enable voting for this event
+        </label>
+      </div>
+      {% if event %}
+      <div class="field-group">
+        <label for="status">Event Status</label>
+        <select id="status" name="status">
+          <option
+            value="published"
+            {%
+            if
+            event.status=""
+            ="published"
+            %}selected{%
+            endif
+            %}
+          >
+            Published
+          </option>
+          <option
+            value="upcoming"
+            {%
+            if
+            event.status=""
+            ="upcoming"
+            %}selected{%
+            endif
+            %}
+          >
+            Upcoming
+          </option>
+          <option
+            value="ongoing"
+            {%
+            if
+            event.status=""
+            ="ongoing"
+            %}selected{%
+            endif
+            %}
+          >
+            Ongoing
+          </option>
+          <option
+            value="completed"
+            {%
+            if
+            event.status=""
+            ="completed"
+            %}selected{%
+            endif
+            %}
+          >
+            Completed
+          </option>
+          <option
+            value="cancelled"
+            {%
+            if
+            event.status=""
+            ="cancelled"
+            %}selected{%
+            endif
+            %}
+          >
+            Cancelled
+          </option>
+        </select>
+      </div>
+      {% endif %}
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">
+          {{ submit_label }}
+        </button>
+        <a class="btn btn-secondary" href="{{ url_for('organizer.dashboard') }}"
+          >Cancel</a
+        >
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

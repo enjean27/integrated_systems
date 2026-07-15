@@ -1,0 +1,126 @@
+{% extends 'base.html' %} {% block title %}Profile | Integrated Portal{%
+endblock %} {% block head_extras %}
+<style>
+  .profile-page {
+    max-width: 700px;
+    margin: 36px auto;
+    padding: 0 16px;
+  }
+
+  .profile-card {
+    background: #111827;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 22px;
+    padding: 28px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+  }
+
+  .profile-card h2 {
+    color: #f8fafc;
+    margin-bottom: 8px;
+  }
+
+  .profile-card p {
+    color: #94a3b8;
+    margin-bottom: 24px;
+  }
+
+  .profile-details {
+    margin-top: 24px;
+    display: grid;
+    gap: 16px;
+  }
+
+  .detail-item strong {
+    display: block;
+    color: #cbd5e1;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .detail-item div {
+    color: #f8fafc;
+  }
+
+  .profile-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+  }
+
+  .btn-secondary {
+    background: rgba(37, 99, 235, 0.12);
+    color: #bfdbfe;
+    border: 1px solid rgba(37, 99, 235, 0.24);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="profile-page">
+  <div class="profile-card">
+    <h2>👤 Profile</h2>
+    <p>Your student account details</p>
+    
+    <div class="profile-details">
+      <div class="detail-item">
+        <strong>Full Name</strong>
+        <div>{{ user.name }}</div>
+      </div>
+      <div class="detail-item">
+        <strong>Email Address</strong>
+        <div>{{ user.email }}</div>
+      </div>
+      <div class="detail-item">
+        <strong>Role</strong>
+        <div>{{ user.role|title }}</div>
+      </div>
+      <div class="detail-item">
+        <strong>Student ID</strong>
+        <div>{{ user.student_id or 'Not assigned' }}</div>
+      </div>
+      <div class="detail-item">
+        <strong>Course & Year</strong>
+        <div>{{ user.course_year or 'Not specified' }}</div>
+      </div>
+      <div class="detail-item">
+        <strong>Member since</strong>
+        <div>
+          {{ user.created_at.strftime('%B %d, %Y') if user.created_at else '—'
+          }}
+        </div>
+      </div>
+      <div class="detail-item">
+        <strong>Account Status</strong>
+        <div>
+          {% if user.active %}
+            <span style="color: #86efac;">✓ Active</span>
+          {% else %}
+            <span style="color: #f87171;">✗ Inactive</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="profile-actions">
+      <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-primary">Edit Profile</a>
+      <a href="{{ url_for('auth.change_password') }}" class="btn btn-secondary">Change Password</a>
+      <a href="{{ url_for('voting.index') }}" class="btn btn-secondary">Back to Elections</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

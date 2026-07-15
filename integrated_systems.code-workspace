@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "name": "integrated_systems",
+      "path": ".",
+    },
+    {
+      "name": "GROUP14B_EVENT_MANAGEMENT_SYSTEM",
+      "path": "../GROUP14B_EVENT_MANAGEMENT_SYSTEM",
+    },
+    {
+      "name": "voting_system",
+      "path": "../voting_system",
+    },
+  ],
+  "settings": {},
+}

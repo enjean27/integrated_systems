@@ -1,0 +1,165 @@
+{% extends 'base.html' %} {% block title %}View Event | Admin{% endblock %} {%
+block head_extras %}
+<style>
+  .event-view-shell {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .event-view-card {
+    padding: 32px;
+    border-radius: 28px;
+    background: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  }
+
+  .event-view-card h1 {
+    margin: 0 0 10px;
+    color: #f8fafc;
+  }
+
+  .event-view-card p {
+    margin: 0 0 20px;
+    color: #cbd5e1;
+    line-height: 1.75;
+  }
+
+  .detail-grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  .detail-block {
+    padding: 22px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+  }
+
+  .detail-block strong {
+    display: block;
+    margin-bottom: 10px;
+    color: #f8fafc;
+  }
+
+  .detail-block span,
+  .detail-block p {
+    color: #94a3b8;
+    line-height: 1.75;
+  }
+
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .button-row a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 18px;
+    border-radius: 16px;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .button-row .btn-secondary {
+    background: rgba(255, 255, 255, 0.04);
+    color: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  .button-row .btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .button-row .btn-primary:hover,
+  .button-row .btn-secondary:hover {
+    opacity: 0.92;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.18);
+    color: #dbeafe;
+    border: 1px solid rgba(37, 99, 235, 0.22);
+    font-weight: 700;
+    margin-top: 10px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container event-view-shell">
+  <section class="event-view-card card">
+    <div>
+      <span class="hero-chip">Event Details</span>
+      <h1>{{ event.title }}</h1>
+      <p>
+        {{ event.description or 'No additional description is available for this
+        event.' }}
+      </p>
+      <div class="button-row">
+        <a class="btn btn-secondary" href="{{ url_for('admin.manage_events') }}"
+          >Back to Events</a
+        >
+        <a
+          class="btn btn-secondary"
+          href="{{ url_for('admin.edit_event', event_id=event.id) }}"
+          >Edit</a
+        >
+        <a
+          class="btn btn-secondary"
+          href="{{ url_for('admin.delete_event', event_id=event.id) }}"
+          >Delete</a
+        >
+      </div>
+      <div class="status-pill">Status: {{ event.status | capitalize }}</div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-block">
+        <strong>Schedule</strong>
+        <span
+          >Date: {{ event.event_date.strftime('%b %d, %Y') if event.event_date
+          else 'Not set' }}</span
+        >
+        <br />
+        <span
+          >Time: {{ event.event_time.strftime('%H:%M') if event.event_time else
+          'Not set' }}</span
+        >
+      </div>
+
+      <div class="detail-block">
+        <strong>Location</strong>
+        <span>{{ event.location or 'Not set' }}</span>
+      </div>
+
+      <div class="detail-block">
+        <strong>Organizer</strong>
+        <span>{{ organizer.name if organizer else 'Not assigned' }}</span>
+      </div>
+
+      <div class="detail-block">
+        <strong>Participation</strong>
+        <span>Registrations: {{ registrations }}</span>
+        <br />
+        <span>Attendance records: {{ attendances }}</span>
+        <br />
+        <span>Certificates issued: {{ certificates }}</span>
+      </div>
+
+      <div class="detail-block">
+        <strong>Voting</strong>
+        <span>{{ election.title if election else 'No voting enabled' }}</span>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

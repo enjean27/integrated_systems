@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      {{ otp_title if otp_title else 'Verify Your Email' }} | Integrated
+      EventVote
+    </title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background: linear-gradient(
+          90deg,
+          #071428 0%,
+          #07142a 30%,
+          #071730 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        color: #e6eef8;
+      }
+      .card {
+        width: 100%;
+        max-width: 680px;
+        background: rgba(9, 18, 30, 0.6);
+        border-radius: 18px;
+        padding: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        box-shadow: 0 30px 80px rgba(2, 6, 23, 0.75);
+      }
+      .card-inner {
+        max-width: 520px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      .logo {
+        margin-bottom: 12px;
+      }
+      .logo img {
+        height: 110px;
+      }
+      h1 {
+        margin: 8px 0 6px;
+        font-size: 22px;
+        color: #eef7ff;
+      }
+      p.lead {
+        margin: 0;
+        color: #9fbddc;
+      }
+      p.sub {
+        margin-top: 18px;
+        color: #cfe9ff;
+      }
+
+      .email-hint {
+        margin-top: 10px;
+        color: #6dd0ff;
+        font-weight: 700;
+      }
+
+      .otp-grid {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin: 28px 0;
+      }
+      .otp-grid input {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(2, 6, 23, 0.6);
+        color: #e6eef8;
+        font-size: 28px;
+        text-align: center;
+      }
+      .otp-grid input:focus {
+        outline: none;
+        box-shadow: 0 0 0 6px rgba(47, 184, 255, 0.08);
+        border-color: #2fb8ff;
+      }
+
+      .verify-btn {
+        display: inline-block;
+        width: 100%;
+        padding: 14px 18px;
+        background: linear-gradient(90deg, #1990ff, #2fb8ff);
+        border-radius: 10px;
+        border: none;
+        color: #042a3d;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 8px;
+      }
+
+      .resend-row {
+        margin-top: 12px;
+        color: #9fbddc;
+        font-size: 14px;
+      }
+      .resend-row a {
+        color: #7fd1ff;
+        text-decoration: none;
+      }
+
+      .back-link {
+        display: block;
+        margin-top: 14px;
+        color: #94b8d8;
+        text-decoration: none;
+      }
+
+      @media (max-width: 520px) {
+        .card {
+          padding: 22px;
+        }
+        .logo img {
+          height: 86px;
+        }
+        .otp-grid input {
+          width: 46px;
+          height: 46px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="card-inner">
+        <div class="logo">
+          <img
+            src="{{ url_for('static', filename='uploads/logo.png') }}"
+            alt="logo"
+            onerror="this.style.display = 'none'"
+          />
+        </div>
+
+        <h1>{{ otp_title if otp_title else 'Verify Your Email' }}</h1>
+        <p class="lead">
+          {{ otp_subtitle if otp_subtitle else 'We sent a 6-digit OTP code to
+          the email below. Enter it to continue.' }}
+        </p>
+        <div class="email-hint">{{ email if email else '' }}</div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}{% if
+        messages %}{% for category, message in messages %}
+        <div
+          style="
+            margin-top: 18px;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            color: #ffdede;
+          "
+        >
+          {{ message }}
+        </div>
+        {% endfor %}{% endif %}{% endwith %}
+
+        <form
+          id="otpForm"
+          method="post"
+          action="{{ url_for('auth.otp_page') }}"
+          autocomplete="off"
+        >
+          <input type="hidden" name="email" value="{{ email }}" />
+          <input type="hidden" name="otp" id="otpHidden" />
+
+          <div class="otp-grid" role="group" aria-label="OTP input">
+            <input
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="1"
+              class="otp-input"
+            />
+            <input
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="1"
+              class="otp-input"
+            />
+            <input
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="1"
+              class="otp-input"
+            />
+            <input
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="1"
+              class="otp-input"
+            />
+            <input
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="1"
+              class="otp-input"
+            />
+            <input
+              inputmode="numeric"
+              pattern="[0-9]*"
+              maxlength="1"
+              class="otp-input"
+            />
+          </div>
+
+          <button class="verify-btn" type="submit">Verify Code</button>
+        </form>
+
+        <div class="resend-row">
+          Didn't receive the code?
+          <span id="resendText"
+            >Resend OTP in <strong id="timer">00:45</strong></span
+          >
+          <form
+            id="resendForm"
+            method="post"
+            action="{{ url_for('auth.resend_otp') }}"
+            style="display: inline-block; margin-left: 8px"
+          >
+            <input type="hidden" name="email" value="{{ email }}" />
+            <button
+              id="resendBtn"
+              type="submit"
+              style="
+                display: none;
+                background: transparent;
+                border: none;
+                color: #7fd1ff;
+                cursor: pointer;
+              "
+            >
+              Resend OTP
+            </button>
+          </form>
+        </div>
+
+        <a class="back-link" href="{{ url_for('auth.login') }}"
+          >&lt; Back to Login</a
+        >
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const inputs = Array.from(document.querySelectorAll(".otp-input"));
+        const hidden = document.getElementById("otpHidden");
+        const form = document.getElementById("otpForm");
+
+        inputs.forEach((input, idx) => {
+          input.addEventListener("input", (e) => {
+            const v = e.target.value.replace(/\D/g, "");
+            e.target.value = v;
+            if (v && idx < inputs.length - 1) inputs[idx + 1].focus();
+          });
+          input.addEventListener("keydown", (e) => {
+            if (e.key === "Backspace" && !e.target.value && idx > 0) {
+              inputs[idx - 1].focus();
+            }
+            if (e.key === "ArrowLeft" && idx > 0) inputs[idx - 1].focus();
+            if (e.key === "ArrowRight" && idx < inputs.length - 1)
+              inputs[idx + 1].focus();
+          });
+          input.addEventListener("paste", (e) => {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData)
+              .getData("text")
+              .trim();
+            const digits = paste
+              .replace(/\D/g, "")
+              .slice(0, inputs.length)
+              .split("");
+            digits.forEach((d, i) => (inputs[i].value = d));
+          });
+        });
+
+        form.addEventListener("submit", (e) => {
+          const code = inputs.map((i) => i.value || "").join("");
+          hidden.value = code;
+        });
+
+        // Resend countdown (45s default)
+        let seconds = 45;
+        const timerEl = document.getElementById("timer");
+        const resendBtn = document.getElementById("resendBtn");
+        const resendText = document.getElementById("resendText");
+        const interval = setInterval(() => {
+          if (seconds <= 0) {
+            clearInterval(interval);
+            timerEl.textContent = "00:00";
+            resendBtn.style.display = "inline";
+            resendText.style.display = "none";
+          } else {
+            const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+            const s = String(seconds % 60).padStart(2, "0");
+            timerEl.textContent = m + ":" + s;
+            seconds -= 1;
+          }
+        }, 1000);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "system_name": "Integrated School Portal",
+  "logo_filename": null,
+  "theme": "dark",
+  "election_rules": {
+    "max_candidates_per_position": 8,
+    "allow_write_ins": false,
+    "require_approval": false
+  }
+}

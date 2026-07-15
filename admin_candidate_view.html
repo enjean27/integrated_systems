@@ -1,0 +1,176 @@
+{% extends 'base.html' %} {% block title %}View Candidate | Admin{% endblock %}
+{% block head_extras %}
+<style>
+  .candidate-view-shell {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .candidate-view-card {
+    padding: 32px;
+    border-radius: 28px;
+    background: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  }
+
+  .candidate-header {
+    display: grid;
+    gap: 20px;
+    align-items: center;
+    grid-template-columns: 1fr auto;
+  }
+
+  .candidate-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 24px;
+    background: #111827;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  .candidate-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .candidate-view-card h1 {
+    margin: 0 0 10px;
+    color: #f8fafc;
+  }
+
+  .candidate-view-card p {
+    margin: 0;
+    color: #cbd5e1;
+    line-height: 1.75;
+  }
+
+  .detail-grid {
+    display: grid;
+    gap: 18px;
+    margin-top: 24px;
+  }
+
+  .detail-block {
+    padding: 22px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+  }
+
+  .detail-block strong {
+    display: block;
+    margin-bottom: 10px;
+    color: #f8fafc;
+  }
+
+  .detail-block span,
+  .detail-block p {
+    color: #94a3b8;
+    line-height: 1.7;
+  }
+
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .button-row a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 18px;
+    border-radius: 16px;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .button-row .btn-secondary {
+    background: rgba(255, 255, 255, 0.04);
+    color: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  .button-row .btn-primary {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .label-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.14);
+    color: #bfdbfe;
+    font-weight: 700;
+    border: 1px solid rgba(37, 99, 235, 0.18);
+    margin-right: 8px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container candidate-view-shell">
+  <section class="candidate-view-card card">
+    <div class="candidate-header">
+      <div>
+        <span class="hero-chip">Candidate Profile</span>
+        <h1>{{ candidate.name }}</h1>
+        <p>
+          {{ candidate.description or 'No biography available for this
+          candidate.' }}
+        </p>
+      </div>
+      <div class="candidate-avatar">
+        {% if candidate.image_url %}
+        <img src="{{ candidate.image_url }}" alt="Candidate photo" />
+        {% else %}
+        <span class="label-pill">No photo</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="button-row">
+      <a
+        class="btn btn-secondary"
+        href="{{ url_for('admin.manage_candidates') }}"
+        >Back to Candidates</a
+      >
+      <a
+        class="btn btn-secondary"
+        href="{{ url_for('admin.edit_candidate', candidate_id=candidate.id) }}"
+        >Edit Candidate Information</a
+      >
+      <a
+        class="btn btn-secondary"
+        href="{{ url_for('admin.delete_candidate', candidate_id=candidate.id) }}"
+        >Remove Candidate</a
+      >
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-block">
+        <strong>Position</strong>
+        <span>{{ candidate.position }}</span>
+      </div>
+      <div class="detail-block">
+        <strong>Partylist</strong>
+        <span>{{ candidate.partylist or 'Not assigned' }}</span>
+      </div>
+      <div class="detail-block">
+        <strong>Election</strong>
+        <span>{{ election.title if election else 'Not linked' }}</span>
+      </div>
+      <div class="detail-block">
+        <strong>Votes received</strong>
+        <span>{{ candidate.vote_count() }}</span>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

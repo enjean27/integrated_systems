@@ -1,0 +1,575 @@
+{% extends 'base.html' %} {% block title %}{{ election.title }} | Voting{%
+endblock %} {% block head_extras %}
+<style>
+  .ballot-page {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  /* SIDEBAR */
+  .ballot-sidebar {
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.96),
+      rgba(31, 41, 55, 0.98)
+    );
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  }
+
+  .sidebar-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sidebar-nav a {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: #cbd5e1;
+    text-decoration: none;
+    background: rgba(17, 24, 39, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.08);
+    transition: all 0.25s ease;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .sidebar-nav a:hover {
+    background: rgba(37, 99, 235, 0.12);
+    color: #f8fafc;
+    border-color: rgba(37, 99, 235, 0.24);
+    transform: translateX(4px);
+  }
+
+  .sidebar-nav a.active {
+    background: linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.2),
+      rgba(59, 130, 246, 0.12)
+    );
+    color: #bfdbfe;
+    border-color: rgba(37, 99, 235, 0.4);
+  }
+
+  /* MAIN CONTENT */
+  .ballot-main {
+    display: grid;
+    gap: 24px;
+  }
+
+  /* SECTIONS */
+  .ballot-section {
+    background: rgba(17, 24, 39, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 20px;
+    padding: 24px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ELECTION DETAILS */
+  .election-details {
+    display: grid;
+    gap: 16px;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: rgba(17, 24, 39, 0.8);
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.08);
+  }
+
+  .detail-label {
+    color: #94a3b8;
+    font-weight: 500;
+  }
+
+  .detail-value {
+    color: #f8fafc;
+    font-weight: 600;
+  }
+
+  /* CANDIDATES GRID */
+  .candidates-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  /* CANDIDATE CARD */
+  .candidate-card {
+    background: #111827;
+    border: 2px solid rgba(148, 163, 184, 0.12);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .candidate-card:hover {
+    border-color: rgba(37, 99, 235, 0.24);
+    box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .candidate-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .candidate-card input[type="radio"]:checked + .card-content {
+    color: #bfdbfe;
+  }
+
+  .candidate-card input[type="radio"]:checked ~ .check-indicator {
+    background: #2563eb;
+    border-color: #1d4ed8;
+    opacity: 1;
+  }
+
+  .candidate-card:has(input:checked) {
+    border-color: #2563eb;
+    background: linear-gradient(
+      135deg,
+      rgba(30, 58, 138, 0.1),
+      rgba(37, 99, 235, 0.06)
+    );
+  }
+
+  .check-indicator {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(148, 163, 184, 0.24);
+    border-radius: 50%;
+    opacity: 0.4;
+    transition: all 0.2s ease;
+  }
+
+  .check-indicator::after {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .card-content {
+    display: grid;
+    gap: 8px;
+    padding-right: 40px;
+    transition: color 0.2s ease;
+  }
+
+  .candidate-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0;
+  }
+
+  .candidate-position {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .candidate-description {
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* REVIEW SECTION */
+  .review-card {
+    background: rgba(30, 58, 138, 0.1);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .review-card.empty {
+    background: rgba(148, 163, 184, 0.1);
+    border-color: rgba(148, 163, 184, 0.2);
+  }
+
+  .review-label {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+
+  .review-value {
+    color: #f8fafc;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  /* STATUS CARD */
+  .status-card {
+    background: linear-gradient(
+      135deg,
+      rgba(34, 197, 94, 0.15),
+      rgba(16, 185, 129, 0.1)
+    );
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .status-card.not-voted {
+    background: linear-gradient(
+      135deg,
+      rgba(239, 68, 68, 0.15),
+      rgba(220, 38, 38, 0.1)
+    );
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .status-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }
+
+  .status-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #86efac;
+    margin: 0 0 8px 0;
+  }
+
+  .status-card.not-voted .status-title {
+    color: #fca5a5;
+  }
+
+  /* FORM */
+  .ballot-form {
+    display: grid;
+    gap: 20px;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .submit-btn {
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    transition: all 0.25s ease;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.35);
+  }
+
+  .submit-btn:disabled {
+    background: #64748b;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .cancel-btn {
+    padding: 12px 28px;
+    background: rgba(37, 99, 235, 0.12);
+    color: #bfdbfe;
+    border: 1px solid rgba(37, 99, 235, 0.24);
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .cancel-btn:hover {
+    background: rgba(37, 99, 235, 0.18);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .ballot-page {
+      grid-template-columns: 1fr;
+    }
+
+    .ballot-sidebar {
+      position: static;
+    }
+
+    .sidebar-nav {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .sidebar-nav a {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .ballot-page {
+      margin: 16px auto;
+      gap: 16px;
+    }
+
+    .candidates-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .submit-btn,
+    .cancel-btn {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="ballot-page">
+  <!-- SIDEBAR -->
+  <aside class="ballot-sidebar">
+    <div class="sidebar-title">🗳️ Navigation</div>
+    <nav class="sidebar-nav">
+      <a
+        class="{% if request.path == url_for('voting.index') %}active{% endif %}"
+        href="{{ url_for('voting.index') }}"
+        >Elections</a
+      >
+      <a
+        class="{% if request.path == url_for('voting.history') %}active{% endif %}"
+        href="{{ url_for('voting.history') }}"
+        >My Votes</a
+      >
+      <a
+        class="{% if request.path == url_for('voting.results') %}active{% endif %}"
+        href="{{ url_for('voting.results') }}"
+        >Results</a
+      >
+      <a
+        class="{% if request.path == url_for('voting.elections') %}active{% endif %}"
+        href="{{ url_for('voting.elections') }}"
+        >All Elections</a
+      >
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ballot-main">
+    <!-- VIEW ELECTION DETAILS -->
+    <section class="ballot-section">
+      <div class="section-header">
+        <h2 class="section-title">📋 View Election Details</h2>
+      </div>
+      <div class="election-details">
+        <div class="detail-row">
+          <span class="detail-label">Election Title</span>
+          <span class="detail-value">{{ election.title }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Description</span>
+          <span class="detail-value">{{ election.description or 'No description' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">{{ election.status|capitalize }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Created Date</span>
+          <span class="detail-value">{{ election.created_at.strftime('%B %d, %Y') if election.created_at else 'N/A' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Total Candidates</span>
+          <span class="detail-value">{{ candidates|length }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW VOTING STATUS -->
+    <section class="ballot-section">
+      <div class="section-header">
+        <h2 class="section-title">📊 View Voting Status</h2>
+      </div>
+      {% if existing_vote %}
+      <div class="status-card">
+        <div class="status-icon">✅</div>
+        <h3 class="status-title">You Have Voted</h3>
+        <p style="color: #cbd5e1; margin: 0;">
+          You voted on {{ existing_vote.created_at.strftime('%B %d, %Y') if existing_vote.created_at else 'N/A' }}
+        </p>
+      </div>
+      {% else %}
+      <div class="status-card not-voted">
+        <div class="status-icon">📝</div>
+        <h3 class="status-title">Not Voted Yet</h3>
+        <p style="color: #cbd5e1; margin: 0;">
+          You haven't voted in this election yet. Select a candidate below to cast your vote.
+        </p>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- EXISTING VOTE MESSAGE -->
+    {% if existing_vote %}
+    <section class="ballot-section">
+      <div class="review-card">
+        <div class="review-label">Your Vote</div>
+        <div class="review-value">{{ existing_vote.choice }}</div>
+      </div>
+    </section>
+
+    <!-- VOTING FORM -->
+    {% else %}
+    {% if candidates %}
+    <form method="post" class="ballot-form" id="votingForm">
+      <!-- VIEW CANDIDATE LIST -->
+      <section class="ballot-section">
+        <div class="section-header">
+          <h2 class="section-title">👥 View Candidate List</h2>
+        </div>
+        <div class="candidates-grid">
+          {% for c in candidates %}
+          <label class="candidate-card">
+            <input type="radio" name="choice" value="{{ c.id }}" required id="candidate_{{ c.id }}" onchange="updateReview()"/>
+            <div class="check-indicator"></div>
+            <div class="card-content">
+              <h3 class="candidate-name">{{ c.name }}</h3>
+              <p class="candidate-position">{{ c.position }}</p>
+              <p class="candidate-description">
+                {{ c.description or 'No candidate description available.' }}
+              </p>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- SELECT CANDIDATE -->
+      <section class="ballot-section">
+        <div class="section-header">
+          <h2 class="section-title">✏️ Select Candidate</h2>
+        </div>
+        <p style="color: #94a3b8;">Click on a candidate card above to select your preferred candidate.</p>
+      </section>
+
+      <!-- REVIEW VOTE -->
+      <section class="ballot-section">
+        <div class="section-header">
+          <h2 class="section-title">👁️ Review Vote</h2>
+        </div>
+        <div class="review-card empty" id="reviewCard">
+          <div class="review-label">Selected Candidate</div>
+          <div class="review-value" id="selectedCandidate">No candidate selected</div>
+        </div>
+      </section>
+
+      <!-- SUBMIT VOTE -->
+      <section class="ballot-section">
+        <div class="section-header">
+          <h2 class="section-title">📤 Submit Vote</h2>
+        </div>
+        <div class="form-actions">
+          <button class="submit-btn" type="submit" id="submitBtn" disabled>Submit Vote</button>
+          <a class="cancel-btn" href="{{ url_for('voting.index') }}">Cancel</a>
+        </div>
+      </section>
+    </form>
+    {% else %}
+    <section class="ballot-section">
+      <div class="status-card not-voted">
+        <div class="status-icon">⚠️</div>
+        <h3 class="status-title" style="color: #fca5a5;">No Candidates Available</h3>
+        <p style="color: #cbd5e1; margin: 0;">
+          There are no candidates registered for this election yet. Please contact the administrator or check back later.
+        </p>
+        <div style="margin-top: 16px;">
+          <a class="cancel-btn" href="{{ url_for('voting.index') }}" style="display: inline-block;">Back to Elections</a>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+    {% endif %}
+  </main>
+</div>
+
+<script>
+function updateReview() {
+  const selected = document.querySelector('input[name="choice"]:checked');
+  const reviewCard = document.getElementById('reviewCard');
+  const selectedCandidate = document.getElementById('selectedCandidate');
+  const submitBtn = document.getElementById('submitBtn');
+  
+  if (selected) {
+    const candidateLabel = document.querySelector(`label[for="${selected.id}"] .candidate-name`).textContent;
+    selectedCandidate.textContent = candidateLabel;
+    reviewCard.classList.remove('empty');
+    reviewCard.style.background = 'rgba(30, 58, 138, 0.1)';
+    reviewCard.style.borderColor = 'rgba(37, 99, 235, 0.2)';
+    submitBtn.disabled = false;
+  } else {
+    selectedCandidate.textContent = 'No candidate selected';
+    reviewCard.classList.add('empty');
+    reviewCard.style.background = 'rgba(148, 163, 184, 0.1)';
+    reviewCard.style.borderColor = 'rgba(148, 163, 184, 0.2)';
+    submitBtn.disabled = true;
+  }
+}
+</script>
+{% endblock %}

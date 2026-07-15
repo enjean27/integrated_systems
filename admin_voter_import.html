@@ -1,0 +1,98 @@
+{% extends 'base.html' %} {% block title %}Import Voters | Admin{% endblock %}
+{% block head_extras %}
+<style>
+  .import-shell {
+    max-width: 840px;
+    margin: 0 auto;
+    padding-top: 10px;
+  }
+
+  .import-card {
+    padding: 32px;
+    border-radius: 28px;
+    background: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  }
+
+  .import-card h1 {
+    margin-top: 0;
+    color: #eef2ff;
+    font-size: clamp(2rem, 2.4vw, 2.6rem);
+  }
+
+  .import-card p {
+    color: #cbd5e1;
+    max-width: 680px;
+    line-height: 1.75;
+  }
+
+  .form-grid {
+    display: grid;
+    gap: 18px;
+    margin-top: 24px;
+  }
+
+  .form-grid label {
+    color: #9ca3af;
+    font-weight: 700;
+  }
+
+  .form-grid textarea {
+    width: 100%;
+    min-height: 220px;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid #374151;
+    background: #111827;
+    color: #f8fafc;
+    font-family: inherit;
+    resize: vertical;
+  }
+
+  .form-grid textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+  }
+
+  .form-actions {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container import-shell">
+  <section class="import-card card">
+    <div>
+      <span class="hero-chip">Import Voters</span>
+      <h1>Quick Voter Upload</h1>
+      <p>
+        Paste a CSV list of voters to bulk import. Use the format:
+        <strong>Name, Email, Password</strong>. Each voter will be created as an
+        active student.
+      </p>
+    </div>
+
+    <form method="post">
+      <div class="form-grid">
+        <label for="csv_content">Voter CSV content</label>
+        <textarea
+          id="csv_content"
+          name="csv_content"
+          placeholder="Name, email@example.com, secretpassword\nAnother Voter, another@example.com, anotherpass"
+        ></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">Import Voters</button>
+        <a class="btn btn-secondary" href="{{ url_for('admin.manage_votes') }}"
+          >Back to Manage Votes</a
+        >
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}
